@@ -2,7 +2,6 @@
 
 import axios from "axios";
 import React, { useState, useEffect } from "react";
-import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import FollowModal from "@/src/components/followFeature";
 
@@ -11,9 +10,8 @@ interface User {
   profileImageURL: string;
   username: string;
   email: string;
-  count: number;
-  followers: [];
-  following: [];
+  followers: string[];
+  following: string[];
   bio: string;
 }
 
@@ -31,12 +29,8 @@ interface Follower {
 }
 
 const UserProfile = () => {
-  const router = useRouter();
-  const params = useParams();
-  const userId = params?.id;
-
-  const [user, setUser] = useState<User | null>(null);
-  const [myId, setMyId] = useState("");
+  const [myId, setMyId] = useState<User | null>(null);
+  const [profile, setProfile] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [followersCount, setFollowersCount] = useState(0);
@@ -46,124 +40,133 @@ const UserProfile = () => {
   const [followerList, setFollowerList] = useState<Follower[]>([]);
   const [followingList, setFollowingList] = useState<Follower[]>([]);
   const [recentPosts, setRecentPosts] = useState<Post[]>([]);
-  const [isFollowing, setIsFollowing] = useState(false);
 
   useEffect(() => {
-    if (!userId) {
-      setError("Invalid user");
-      setLoading(false);
-      return;
-    }
     const fetchMyId = async () => {
       try {
         const res = await axios.get(`/api/users/me`);
-        setMyId(res.data?.user._id);
+        const userData = res?.data?.data;
+        setMyId(userData);
+        setProfile(userData);
+        setFollowersCount(userData.followers.length || 0);
+        setFollowingCount(userData.following.length || 0);
+        setLoading(false);
+        return userData;
       } catch (error: any) {
         setError(error.response?.data?.message || "Error fetching user data.");
+        setLoading(false);
+        return null;
       }
     };
-    fetchUserAndBlogs();
-    fetchMyId();
-  }, [userId]);
-
-  const fetchUserAndBlogs = async () => {
-    try {
-      setLoading(true);
-      const [userRes, postsRes] = await Promise.all([
-        axios.get(`/api/profile/${userId}`),
-        axios.get(`/api/userPosts/${userId}`)
-      ]);
-
-      const user = userRes.data;
-      const posts = postsRes.data;
-
-      if (!user) {
-        setError("User not found");
-        return;
+  
+    const fetchPosts = async (userId: string) => {
+      try {
+        if (userId) {
+          const posts = await axios.get(`/api/userPosts/${userId}`);
+          setRecentPosts(posts.data);
+        }
+      } catch (error: any) {
+        console.log("error", error);
       }
-
-      const isCurrentlyFollowing = user.followers.includes(myId);
-      setUser(user);
-      setIsFollowing(isCurrentlyFollowing);
-      setFollowersCount(user.followers.length);
-      setFollowingCount(user.following.length);
-      setRecentPosts(posts.message ? [] : posts);
-    } catch (error: any) {
-      setError(error.response?.data?.message || "User Fetching Error");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const toggleFollow = async () => {
-    try {
-      const button = isFollowing ? "/api/unfollow" : "/api/follow";
-      await axios.post(button, { userId, myId });
-      setIsFollowing(!isFollowing);
-      setFollowersCount((prevCount) => (isFollowing ? prevCount - 1 : prevCount + 1));
-      fetchUserAndBlogs();
-    } catch (error) {
-      console.log(error);
-    }
-  };
+    };
+  
+    const fetchFollowers = async (userId: string) => {
+      try {
+        const followers = await axios.get(`/api/followers/${userId}`);
+        console.log(followers.data);
+        setFollowerList(followers.data.followers);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+  
+    const fetchFollowing = async (userId: string) => {
+      try {
+        const following = await axios.get(`/api/following/${userId}`);
+        console.log(following.data);
+        setFollowingList(following.data.following);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+  
+    fetchMyId().then((user) => {
+      if (user?._id) {
+        fetchPosts(user._id);
+        fetchFollowers(user._id);
+        fetchFollowing(user._id);
+      }
+    });
+  
+  }, []);
+  
 
   return (
-    <div>
+    <div className="flex flex-col items-center p-10 min-h-screen text-white bg-black">
       {loading ? (
-        <p>Loading User Profile</p>
-      ) : (
-        user && (
-          <>
-            <div>
-              <img src={user.profileImageURL} alt="Profile" />
-              <h1>{user.username}</h1>
-              <h2>{user.email}</h2>
-              <p>{user.bio || "No bio Available"}</p>
-              <div>
-                <div onClick={() => setFollowersOpen(true)}>
-                  <p>{followersCount}</p>
-                  <p>Followers</p>
-                </div>
-                <div onClick={() => setFollowingOpen(true)}>
-                  <p>{followingCount}</p>
-                  <p>Following</p>
-                </div>
-                {userId !== myId && (
-                  <button onClick={toggleFollow}>
-                    {isFollowing ? "Unfollow" : "Follow"}
-                  </button>
-                )}
+        <p className="text-lg font-semibold animate-pulse">Loading User Profile...</p>
+      ) : profile ? (
+        <div className="max-w-3xl w-full bg-gray-800 bg-opacity-95 shadow-2xl rounded-3xl p-8 flex flex-col items-center backdrop-blur-md border border-gray-700">
+          <img
+            src={profile.profileImageURL}
+            alt="Profile"
+            className="w-32 h-32 rounded-full border-4 border-purple-500 shadow-lg transform hover:scale-110 transition duration-300"
+          />
+          <h1 className="text-3xl font-bold mt-4 text-white">{profile.username}</h1>
+          <h2 className="text-gray-400">{profile.email}</h2>
+          <p className="text-center mt-2 text-gray-300">{profile.bio || "No bio available"}</p>
+
+          <div className="flex justify-around w-full mt-6">
+            <div
+              className="text-center cursor-pointer p-4 bg-purple-700 rounded-lg shadow-md hover:bg-purple-600 transition duration-300"
+              onClick={() => setFollowersOpen(true)}
+            >
+              <p className="text-2xl font-bold text-white">{followersCount}</p>
+              <p className="text-gray-300">Followers</p>
+            </div>
+            <div
+              className="text-center cursor-pointer p-4 bg-purple-700 rounded-lg shadow-md hover:bg-purple-600 transition duration-300"
+              onClick={() => setFollowingOpen(true)}
+            >
+              <p className="text-2xl font-bold text-white">{followingCount}</p>
+              <p className="text-gray-300">Following</p>
+            </div>
+          </div>
+
+          {followersOpen && (
+            <FollowModal title="Followers" list={followerList} onClose={() => setFollowersOpen(false)} />
+          )}
+          {followingOpen && (
+            <FollowModal title="Following" list={followingList} onClose={() => setFollowingOpen(false)} />
+          )}
+
+          <Link href={`/userPosts/${myId?._id}`} className="mt-6 text-purple-400 hover:underline text-lg font-medium">
+            View all posts
+          </Link>
+
+          <div className="mt-6 w-full">
+            <h2 className="text-2xl font-semibold mb-4 text-white">Recent Posts</h2>
+            {recentPosts.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {recentPosts.map((post) => (
+                  <div key={post._id} className="bg-gray-700 p-4 rounded-xl shadow-lg hover:shadow-2xl transition duration-300">
+                    <img
+                      src={post.images.length > 0 ? post.images[0] : "/default.png"}
+                      alt="Post"
+                      className="w-full h-40 object-cover rounded-md transform hover:scale-105 transition duration-300"
+                    />
+                    <h1 className="text-lg font-semibold mt-2 text-white">{post.title}</h1>
+                    <p className="text-gray-400 text-sm">{post.caption}</p>
+                  </div>
+                ))}
               </div>
-            </div>
-            {followersOpen && (
-              <FollowModal title="Followers" list={followerList} onClose={() => setFollowersOpen(false)} />
+            ) : (
+              <p className="text-gray-400">No posts available</p>
             )}
-            {followingOpen && (
-              <FollowModal title="Following" list={followingList} onClose={() => setFollowingOpen(false)} />
-            )}
-            <div>
-              <Link href={`/userPosts/${userId}`}>
-                <p>View all posts</p>
-              </Link>
-              <p>{recentPosts.length} Passioning My style</p>
-            </div>
-            <div>
-              {recentPosts.length > 0 ? (
-                <div>
-                  {recentPosts.map((post) => (
-                    <div key={post._id}>
-                      <img src={post.images.length > 0 ? post.images[0] : "default.png"} alt="Post" />
-                      <h1>{post.title}</h1>
-                      <p>{post.caption}</p>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p>No posts Available</p>
-              )}
-            </div>
-          </>
-        )
+          </div>
+        </div>
+      ) : (
+        <p className="text-red-500">{error}</p>
       )}
     </div>
   );

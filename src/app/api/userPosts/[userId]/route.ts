@@ -6,14 +6,15 @@ import User from "@/src/models/userModel";
 connect();
 
 export async function GET(request:NextRequest,{params}:{params:{userId:string}}){
-    const {userId}=params;
+    const {userId}=await params;
+    console.log(userId);
     try{
         const user=await User.findById(userId);
         if(!user){
             return NextResponse.json({error:"User not authenticated!"},{status:404});
         }
 
-        const posts=await Post.findBy({userId}).sort({createdAt:-1});
+        const posts=await Post.find({ createdBy: userId }).populate("createdBy");
         if(posts.length===0){
             return NextResponse.json({message:"No posts to display!"})
         }
