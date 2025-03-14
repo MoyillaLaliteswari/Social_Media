@@ -55,7 +55,7 @@ const ProfileCard = () => {
       {/* Profile Image */}
       <div className="relative -mt-10 flex justify-center">
         <Image
-          src={user.profilePhoto || '/noAvatar.png'}
+          src={user.profileImageURL || '/noAvatar.png'}
           alt="Profile"
           width={80}
           height={80}

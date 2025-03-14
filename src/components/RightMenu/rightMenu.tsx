@@ -15,14 +15,12 @@ export default function RightMenu({ suggested }: { suggested: SuggestedUser[] })
       initial={{ x: 200, opacity: 0 }}
       animate={{ x: 0, opacity: 1 }}
       transition={{ duration: 0.5 }}
-      className="w-72 p-6 hidden lg:flex flex-col bg-gray-900 bg-opacity-90 backdrop-blur-lg rounded-l-3xl shadow-2xl h-full overflow-y-auto"
+      className="fixed top-0 right-0 w-72 h-screen p-6 hidden lg:flex flex-col bg-gray-900 bg-opacity-90 backdrop-blur-lg shadow-2xl overflow-y-auto z-50"
     >
-      {/* Profile Card at the Top */}
       <div className="w-full">
         <ProfileCard />
       </div>
 
-      {/* Suggestions Section */}
       <div className="mt-auto">
         <h3 className="font-semibold text-gray-300 pb-4 border-b border-gray-700">
           Suggested for you
@@ -36,7 +34,6 @@ export default function RightMenu({ suggested }: { suggested: SuggestedUser[] })
                 className="flex items-center justify-between bg-gray-800 bg-opacity-40 rounded-xl p-3 transition-all duration-300 hover:bg-gray-700"
               >
                 <div className="flex items-center space-x-3">
-                  {/* Avatar Placeholder */}
                   <div className="w-10 h-10 bg-gray-700 rounded-full flex items-center justify-center text-white font-medium">
                     {user.username.charAt(0).toUpperCase()}
                   </div>

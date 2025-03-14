@@ -5,13 +5,13 @@ import User from "@/src/models/userModel";
 import { getDataFromToken } from "@/src/helpers/getDataFromToken";
 connect();
 
-export async function GET(request: NextRequest, { params }: { params: { userId: string } }) {
-    const req=await request;
-    const userId=await getDataFromToken(req);
-    if (!userId) {
-        return NextResponse.json({ message: "UserId is required" }, { status: 400 });
-    }
+export async function GET(request: NextRequest) {
     try {
+        const userId = await getDataFromToken(request);
+        if (!userId) {
+            return NextResponse.json({ message: "UserId is required" }, { status: 400 });
+        }
+
         const user = await User.findById(userId).populate("following");
         if (!user) {
             return NextResponse.json({ message: "User not found" }, { status: 404 });
@@ -23,10 +23,19 @@ export async function GET(request: NextRequest, { params }: { params: { userId: 
             author: { $in: followingIds },
             expiresAt: { $gt: new Date() }
         })
-        .populate("author", "username profileImageURL")  // Fixed field name
-        .sort({ createdAt: -1 });  // Optional: Sort by latest
+        .populate("author", "username profileImageURL")
+        .sort({ createdAt: -1 });
 
-        return NextResponse.json({ stories }, { status: 200 });
+        // Ensure correct response structure
+        return NextResponse.json({ stories: stories.map((story: any) => ({
+            _id: story._id,
+            expiresAt: story.expiresAt,
+            author: {
+                username: story.author.username,
+                profileImageURL: story.author.profileImageURL
+            }
+        }))}, { status: 200 });
+
     } catch (error: any) {
         console.error("Error fetching stories:", error);
         return NextResponse.json({ message: "Failed to fetch stories", error: error.message }, { status: 500 });

@@ -35,15 +35,14 @@ export default function Home() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const [postsRes,storiesRes,suggestedRes] = await Promise.all([
+        const [postsRes, storiesRes, suggestedRes] = await Promise.all([
           axios.get('/api/posts/home'),
           axios.get('/api/stories/following'),
           axios.get('/api/suggestions'),
         ]);
-        
-        // console.log(postsRes.data.posts);
-        // console.log(suggestedRes.data.suggested);
-        // Ensure data is always an array before setting state
+  
+        console.log("Stories API Response:", storiesRes.data.stories); // Debugging
+  
         setPosts(Array.isArray(postsRes.data.posts) ? postsRes.data.posts : []);
         setStories(Array.isArray(storiesRes.data.stories) ? storiesRes.data.stories : []);
         setSuggested(Array.isArray(suggestedRes.data.suggested) ? suggestedRes.data.suggested : []);
@@ -55,48 +54,43 @@ export default function Home() {
     }
     fetchData();
   }, []);
+  
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.8 }}
-      className="flex h-screen bg-gradient-to-br from-black via-gray-900 to-gray-800 text-white"
-    >
+    <div className="flex bg-gradient-to-br from-black via-gray-900 to-gray-800 text-white h-screen">
       {/* Left Sidebar */}
       <LeftMenu />
 
-      {/* Main Feed */}
-      <div className="w-3/5 mx-auto mt-5 space-y-5">
-        {/* Loading Animation */}
-        {loading ? (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5, repeat: Infinity, repeatType: "reverse" }}
-            className="text-center text-gray-300 text-xl"
-          >
-            Loading...
-          </motion.div>
-        ) : (
-          <>
-            {/* Stories Component */}
-            <Stories stories={stories} />
-
-            {/* Posts Component */}
-            <Posts posts={posts} />
-          </>
-        )}
+      {/* Main Content (Scrollable) */}
+      <div className="flex-1 flex justify-center">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.8 }}
+          className="w-[45rem] max-w-full h-screen overflow-y-auto pt-5 px-4 flex flex-col gap-6"
+        >
+          {loading ? (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5, repeat: Infinity, repeatType: 'reverse' }}
+              className="text-center text-gray-300 text-xl"
+            >
+              Loading...
+            </motion.div>
+          ) : (
+            <>
+              <div className="sticky top-0 bg-gray-900 z-10 pb-3">
+                <Stories stories={stories} />
+              </div>
+              <Posts posts={posts} />
+            </>
+          )}
+        </motion.div>
       </div>
 
       {/* Right Sidebar */}
-      <motion.div
-        initial={{ x: 100, opacity: 0 }}
-        animate={{ x: 0, opacity: 1 }}
-        transition={{ duration: 0.6, ease: "easeOut" }}
-      >
-        <RightMenu suggested={suggested} />
-      </motion.div>
-    </motion.div>
+      <RightMenu suggested={suggested} />
+    </div>
   );
 }
