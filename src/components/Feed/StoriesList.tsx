@@ -1,28 +1,37 @@
-import React,{useEffect,useState} from "react";
-import axios from "axios";
+'use client';
 
-type Story={
-    _id:string;
-    media:string;
-    mediaType:string;
-    createdAt:string;
-    author:{
-        _id:string;
-        username:string;
-        profileImageURL:string;
+interface Story {
+    _id: string;
+    author: {
+        username: string;
+        profileImageURL: string;
     };
-};
+    expiresAt: string;
+}
 
-type StoriesListProps={
-    userId:string;
-};
+interface StoriesProps {
+    stories: Story[];
+}
 
-const StoriesList:React.FC<StoriesListProps>=({userId})=>{
-    const [stories,setStories]=useState<Story[]>([]);
-    const [loading,setLoading]=useState(true);
-    const [error,setError]=useState<string | null>(null);
-    
-    return(
-        <div className=""></div>
-    )
+export default function Stories({ stories }: StoriesProps) {
+    return (
+        <div className="flex space-x-4 overflow-x-auto p-4 bg-white shadow rounded-lg">
+            {stories.length > 0 ? (
+                stories.map((story) => (
+                    <div key={story._id} className="flex flex-col items-center cursor-pointer">
+                        <div className="w-16 h-16 border-2 border-pink-500 rounded-full p-1">
+                            <img
+                                src={story.author.profileImageURL}
+                                alt={story.author.username}
+                                className="w-full h-full rounded-full object-cover"
+                            />
+                        </div>
+                        <span className="text-xs mt-1 text-gray-700">{story.author.username}</span>
+                    </div>
+                ))
+            ) : (
+                <div className="text-center text-gray-500">No stories available</div>
+            )}
+        </div>
+    );
 }

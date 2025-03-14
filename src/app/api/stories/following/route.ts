@@ -2,10 +2,12 @@ import { connect } from "@/src/dbConfig/dbConfig";
 import { NextRequest, NextResponse } from "next/server";
 import Story from "@/src/models/storyModel";
 import User from "@/src/models/userModel";
+import { getDataFromToken } from "@/src/helpers/getDataFromToken";
 connect();
 
 export async function GET(request: NextRequest, { params }: { params: { userId: string } }) {
-    const { userId } = params;
+    const req=await request;
+    const userId=await getDataFromToken(req);
     if (!userId) {
         return NextResponse.json({ message: "UserId is required" }, { status: 400 });
     }

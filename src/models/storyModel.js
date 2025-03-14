@@ -10,7 +10,7 @@ const StorySchema = new mongoose.Schema({
         type: String, 
         required: true 
     },
-    medaiType:{
+    mediaType:{
         type:String,
         enum:['image','video'],
         required:true

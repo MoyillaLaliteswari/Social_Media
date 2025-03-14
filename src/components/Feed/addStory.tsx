@@ -1,3 +1,4 @@
+"use client"
 import React,{useState,useEffect} from "react";
 import {FiPlus} from "react-icons/fi";
 import axios from "axios";
@@ -10,10 +11,10 @@ const AddStory=()=>{
     useEffect(()=>{
         const fetchUserInfo=async()=>{
             try{
-                const res = await fetch("/api/user", { method: "GET", credentials: "include" });
-                const data = await res.json();
+                const res = await axios.get("/api/users/me", { method: "GET" });
+                const data = res.data;
 
-                if (res.ok && data.data.profileImageURL) {
+                if (res.status === 200 && data.data.profileImageURL) {
                     setProfileImage(data.data.profileImageURL);
                 }
             }catch(error){
