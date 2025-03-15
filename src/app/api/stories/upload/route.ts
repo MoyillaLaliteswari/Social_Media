@@ -35,13 +35,18 @@ export async function POST(request: NextRequest) {
 
         // Upload to Cloudinary
         const uploadResponse = await new Promise((resolve, reject) => {
-            cloudinary.v2.uploader.upload_stream(
-                { resource_type: mediaType === "video" ? "video" : "image" },
+            const stream = cloudinary.v2.uploader.upload_stream(
+                { 
+                    resource_type: mediaType === "video" ? "video" : "image",
+                    chunk_size: 6000000, // 6MB chunk size to handle large files
+                    timeout: 600000, // 10 minutes timeout
+                },
                 (error, result) => {
                     if (error) reject(error);
                     else resolve(result);
                 }
-            ).end(buffer);
+            );
+            stream.end(buffer);
         });
 
         const mediaURL = (uploadResponse as any).secure_url;
@@ -59,6 +64,7 @@ export async function POST(request: NextRequest) {
 
         return NextResponse.json({ message: "Story uploaded successfully", mediaURL }, { status: 200 });
     } catch (error: any) {
+        console.error("Upload Error:", error);
         return NextResponse.json({ message: "Failed to upload story", error: error.message }, { status: 500 });
     }
 }

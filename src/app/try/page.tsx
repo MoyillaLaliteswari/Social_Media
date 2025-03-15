@@ -1,11 +1,9 @@
-import AddStory from '@/src/components/Feed/addStory'
-import Stories from '@/src/components/Feed/StoriesList'
 import React from 'react'
-
+import AddStory from '@/src/components/Feed/addStory'
 function page() {
   return (
     <div>
-        
+        <AddStory/>
     </div>
   )
 }

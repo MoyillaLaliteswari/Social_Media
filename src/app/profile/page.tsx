@@ -4,6 +4,7 @@ import axios from "axios";
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import FollowModal from "@/src/components/followFeature";
+import LeftMenu from "@/src/components/LeftMenu/leftMenu";
 
 interface User {
   _id: string;
@@ -132,6 +133,7 @@ const UserProfile = () => {
 
   return (
     <div className="flex flex-col items-center p-10 min-h-screen text-white bg-black">
+      <LeftMenu/>
       {loading ? (
         <p className="text-lg font-semibold animate-pulse">Loading User Profile...</p>
       ) : profile ? (

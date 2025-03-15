@@ -12,12 +12,8 @@ interface Story {
   _id: number;
   user: string;
   img: string;
-}
-
-interface Assam {
-  _id: number;
-  user: string;
-  img: string;
+  media: string;
+  mediaType: 'image' | 'video';
 }
 
 interface Post {
@@ -46,9 +42,9 @@ export default function Home() {
           axios.get('/api/stories/following'),
           axios.get('/api/suggestions'),
         ]);
-  
+
         console.log("Stories API Response:", storiesRes.data.stories); // Debugging
-  
+
         setPosts(Array.isArray(postsRes.data.posts) ? postsRes.data.posts : []);
         setStories(Array.isArray(storiesRes.data.stories) ? storiesRes.data.stories : []);
         setSuggested(Array.isArray(suggestedRes.data.suggested) ? suggestedRes.data.suggested : []);
@@ -60,14 +56,10 @@ export default function Home() {
     }
     fetchData();
   }, []);
-  
 
   return (
     <div className="flex bg-gradient-to-br from-black via-gray-900 to-gray-800 text-white h-screen">
-      {/* Left Sidebar */}
       <LeftMenu />
-
-      {/* Main Content (Scrollable) */}
       <div className="flex-1 flex justify-center">
         <motion.div
           initial={{ opacity: 0 }}
@@ -94,8 +86,6 @@ export default function Home() {
           )}
         </motion.div>
       </div>
-
-      {/* Right Sidebar */}
       <RightMenu suggested={suggested} />
     </div>
   );

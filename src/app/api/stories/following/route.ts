@@ -26,15 +26,15 @@ export async function GET(request: NextRequest) {
         .populate("author", "username profileImageURL")
         .sort({ createdAt: -1 });
 
-        // Ensure correct response structure
-        return NextResponse.json({ stories: stories.map((story: any) => ({
-            _id: story._id,
-            expiresAt: story.expiresAt,
-            author: {
-                username: story.author.username,
-                profileImageURL: story.author.profileImageURL
-            }
-        }))}, { status: 200 });
+        return NextResponse.json({ 
+            stories: stories.map((story: any) => ({
+                _id: story._id,
+                user: story.author.username,
+                img: story.author.profileImageURL,
+                media: story.media,
+                mediaType: story.mediaType
+            }))
+        }, { status: 200 });
 
     } catch (error: any) {
         console.error("Error fetching stories:", error);
