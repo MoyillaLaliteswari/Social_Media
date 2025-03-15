@@ -14,6 +14,12 @@ interface Story {
   img: string;
 }
 
+interface Assam {
+  _id: number;
+  user: string;
+  img: string;
+}
+
 interface Post {
   _id: number;
   title: string;
