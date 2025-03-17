@@ -61,43 +61,42 @@ const AddStory = () => {
     };
 
     return (
-        <div className="flex flex-col items-center">
-            {/* Profile Circle with + Button */}
-            <div className="relative">
-                <label htmlFor="story-upload" className="cursor-pointer">
-                    <div className="w-24 h-24 rounded-full border-4 border-pink-500 overflow-hidden relative">
-                        <img src={profileImage} alt="Profile" className="w-full h-full object-cover" />
-                        <div className="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center">
+        <div className="flex flex-col items-center cursor-pointer hover:scale-105 transition-transform">
+            <label htmlFor="story-upload" className="cursor-pointer">
+                <div className="relative w-16 h-16 p-1 rounded-full bg-gradient-to-r from-[#ff416c] to-[#ff4b2b]">
+                    <div className="w-full h-full bg-white p-[2px] rounded-full flex items-center justify-center relative shadow-lg">
+                        <img src={profileImage} alt="Profile" className="w-full h-full rounded-full object-cover" />
+                        <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center rounded-full transition-opacity duration-300 hover:bg-opacity-50">
                             <FiPlus className="text-white text-3xl" />
                         </div>
                     </div>
-                </label>
-                <input
-                    id="story-upload"
-                    type="file"
-                    accept="image/*,video/*"
-                    className="hidden"
-                    onChange={handleFileChange}
-                />
-            </div>
-
-            {/* File Name Preview */}
-            {media && <p className="text-sm mt-1 text-gray-600">{media.name}</p>}
+                </div>
+            </label>
+            <input
+                id="story-upload"
+                type="file"
+                accept="image/*,video/*"
+                className="hidden"
+                onChange={handleFileChange}
+            />
+            <p className="text-xs mt-2 text-gray-300 font-medium backdrop-blur-sm px-2 py-1 rounded-md bg-white/10">
+                Add Story
+            </p>
 
             {/* Upload Button */}
             {media && (
                 <button
                     onClick={handleUpload}
-                    className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+                    className="mt-3 px-5 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white text-sm rounded-full shadow-md transition-all duration-300 hover:scale-105 hover:shadow-lg"
                 >
-                    Upload Story
+                    Upload
                 </button>
             )}
 
             {/* Upload Status */}
-            {uploadStatus === "uploading" && <p className="text-xs text-blue-500">Uploading...</p>}
-            {uploadStatus === "success" && <p className="text-xs text-green-500">Story uploaded!</p>}
-            {uploadStatus === "error" && <p className="text-xs text-red-500">Upload failed!</p>}
+            {uploadStatus === "uploading" && <p className="text-xs text-blue-400 mt-1">Uploading...</p>}
+            {uploadStatus === "success" && <p className="text-xs text-green-400 mt-1">Story uploaded!</p>}
+            {uploadStatus === "error" && <p className="text-xs text-red-400 mt-1">Upload failed!</p>}
         </div>
     );
 };

@@ -31,5 +31,30 @@ body {
 }
 
 
+/* Sleek Scrollbar */
+.sleek-scrollbar::-webkit-scrollbar {
+  width: 6px; /* Thin scrollbar */
+}
+
+.sleek-scrollbar::-webkit-scrollbar-track {
+  background: transparent; /* Track is hidden */
+}
+
+.sleek-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2); /* Light scrollbar */
+  border-radius: 10px;
+}
+
+.sleek-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.4); /* Slightly darker on hover */
+}
+
+.sleek-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+
+
 
 

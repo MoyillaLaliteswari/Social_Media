@@ -1,4 +1,4 @@
-import { NextResponse,NextRequest } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 import { v2 as cloudinary } from "cloudinary";
 
 cloudinary.config({
@@ -9,24 +9,21 @@ cloudinary.config({
 
 export async function POST(req: NextRequest) {
   try {
-    const { image } = await req.json();
+    const formData = await req.formData();
+    const file = formData.get("media") as File;
 
-    if (!image || !image.startsWith("data:image/")) {
-      return NextResponse.json(
-        { success: false, error: "Invalid or unsupported file format." },
-        { status: 400 }
-      );
+    if (!file) {
+      return NextResponse.json({ success: false, error: "No media file provided." }, { status: 400 });
     }
 
-    console.log("Uploading image to Cloudinary...");
-    const uploadResponse = await cloudinary.uploader.upload(image, {
-      folder: "uploads",
-    });
+    // Convert file to base64
+    const buffer = await file.arrayBuffer();
+    const base64String = `data:${file.type};base64,${Buffer.from(buffer).toString("base64")}`;
 
-    return NextResponse.json({
-      success: true,
-      secure_url: uploadResponse.secure_url,
-    });
+    console.log("Uploading image to Cloudinary...");
+    const uploadResponse = await cloudinary.uploader.upload(base64String, { folder: "uploads" });
+
+    return NextResponse.json({ success: true, secure_url: uploadResponse.secure_url });
   } catch (error: any) {
     console.error("Cloudinary upload error:", error.message);
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });

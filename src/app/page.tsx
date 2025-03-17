@@ -7,6 +7,7 @@ import LeftMenu from '@/src/components/LeftMenu/leftMenu';
 import RightMenu from '@/src/components/RightMenu/rightMenu';
 import Stories from '@/src/components/home/stories';
 import Posts from '@/src/components/home/posts';
+import AddStory from '@/src/components/Feed/addStory';
 
 interface Story {
   _id: number;
@@ -17,10 +18,16 @@ interface Story {
 }
 
 interface Post {
-  _id: number;
+  _id: string;
   title: string;
-  images: string;
+  images: string[];
   caption: string;
+  createdBy: {
+    _id: string;
+    username: string;
+    email: string;
+    profileImageURL: string;
+  };
 }
 
 interface SuggestedUser {
@@ -43,9 +50,18 @@ export default function Home() {
           axios.get('/api/suggestions'),
         ]);
 
-        console.log("Stories API Response:", storiesRes.data.stories); // Debugging
+        console.log('Posts API Response:', postsRes.data.posts);
 
-        setPosts(Array.isArray(postsRes.data.posts) ? postsRes.data.posts : []);
+        setPosts(
+          Array.isArray(postsRes.data.posts)
+            ? postsRes.data.posts.map((post: any) => ({
+                ...post,
+                likes: Array.isArray(post.likes) ? post.likes : [],
+                comments: Array.isArray(post.comments) ? post.comments : [],
+              }))
+            : []
+        );
+
         setStories(Array.isArray(storiesRes.data.stories) ? storiesRes.data.stories : []);
         setSuggested(Array.isArray(suggestedRes.data.suggested) ? suggestedRes.data.suggested : []);
       } catch (error) {
@@ -78,10 +94,15 @@ export default function Home() {
             </motion.div>
           ) : (
             <>
-              <div className="sticky top-0 bg-gray-900 z-10 pb-3">
+              <div className="sticky top-0 bg-gray-900 z-10 pb-3 flex px-4 items-center gap-4">
+                <AddStory />
                 <Stories stories={stories} />
               </div>
-              <Posts posts={posts} />
+              <div className="h-[80vh] overflow-y-auto hide-scrollbar space-y-8">
+                {posts.map((post) => (
+                  <Posts key={post._id} post={post} />
+                ))}
+              </div>
             </>
           )}
         </motion.div>

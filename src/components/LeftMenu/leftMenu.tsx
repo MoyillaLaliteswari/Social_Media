@@ -2,18 +2,28 @@
 
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { FaHome, FaSearch, FaVideo, FaEnvelope, FaBell, FaPlusCircle, FaUser } from 'react-icons/fa';
+import { FaHome, FaSearch, FaBell, FaPlusCircle, FaUser } from 'react-icons/fa';
+import { useRouter } from 'next/navigation';
+import axios from 'axios';
 
 export default function LeftMenu() {
+  const router=useRouter();
   const menuItems = [
     { href: '/', label: 'Home', icon: <FaHome /> },
     { href: '/search', label: 'Search', icon: <FaSearch /> },
-    { href: '/reels', label: 'Reels', icon: <FaVideo /> },
-    { href: '/messages', label: 'Messages', icon: <FaEnvelope /> },
     { href: '/notifications', label: 'Notifications', icon: <FaBell /> },
-    { href: '/create', label: 'Create', icon: <FaPlusCircle /> },
+    { href: '/addPost', label: 'Create', icon: <FaPlusCircle /> },
     { href: '/profile', label: 'Profile', icon: <FaUser /> },
   ];
+
+  const handleLogout=async()=>{
+     try {
+        await axios.get('api/users/logout');
+        router.push('/login');
+     } catch (error:any) {
+      console.log(error)
+     }
+  }
 
   return (
     <motion.div
@@ -38,7 +48,9 @@ export default function LeftMenu() {
       </ul>
 
       {/* Logout Button */}
-      <button className="mt-auto flex items-center space-x-3 text-gray-400 hover:text-red-500 hover:bg-gray-800 p-3 rounded-lg transition-all duration-300">
+      <button 
+      onClick={handleLogout}
+      className="mt-auto flex items-center space-x-3 text-gray-400 hover:text-red-500 hover:bg-gray-800 p-3 rounded-lg transition-all duration-300">
         🚪 <span>Logout</span>
       </button>
     </motion.div>
