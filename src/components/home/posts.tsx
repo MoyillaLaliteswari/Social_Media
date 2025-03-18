@@ -18,12 +18,12 @@ interface PostProps {
 }
 
 export default function Posts({ post }: PostProps) {
-  const [likes, setLikes] = useState(0);
-  const [commentText, setCommentText] = useState("");
-  const [hasLiked, setHasLiked] = useState(false);
   const [postLikes, setPostLikes] = useState(0);
+  const [hasLiked, setHasLiked] = useState(false);
+  const [commentText, setCommentText] = useState("");
   const [user, setUser] = useState<any>(null);
   const [postComments, setPostComments] = useState<any[]>([]);
+  const [isPlaying, setIsPlaying] = useState(false);
   const postId = post._id;
 
   useEffect(() => {
@@ -49,13 +49,23 @@ export default function Posts({ post }: PostProps) {
 
   const fetchInitialLikes = async () => {
     try {
-      const { data } = await axios.post(`/api/intialLikes/${postId}`, {
-        userId: user,
-      });
+      const { data } = await axios.post(`/api/intialLikes/${postId}`, { userId: user });
       setPostLikes(data.likes);
       setHasLiked(data.likedByUser);
     } catch (error) {
       console.error("Error fetching likes:", error);
+    }
+  };
+
+  const onComment = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!commentText.trim()) return;
+    try {
+      await axios.post("/api/comments", { commentText, user, postId });
+      setCommentText("");
+      fetchComments();
+    } catch (error) {
+      console.error("Error submitting comment:", error);
     }
   };
 
@@ -84,16 +94,14 @@ export default function Posts({ post }: PostProps) {
     }
   };
 
-  const onComment = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!commentText.trim()) return;
-    try {
-      await axios.post("/api/comments", { commentText, user, postId });
-      setCommentText("");
-      fetchComments();
-    } catch (error) {
-      console.error("Error submitting comment:", error);
+  const toggleVideo = (e: React.MouseEvent<HTMLVideoElement>) => {
+    const video = e.currentTarget;
+    if (isPlaying) {
+      video.pause();
+    } else {
+      video.play();
     }
+    setIsPlaying(!isPlaying);
   };
 
   const formatTimeAgo = (timestamp: string) => {
@@ -117,45 +125,42 @@ export default function Posts({ post }: PostProps) {
   };
 
   return (
-    <div className="bg-gray-900/80 border border-gray-700 rounded-3xl p-6 shadow-lg backdrop-blur-md transition-all duration-300 hover:shadow-2xl hover:scale-105">
+    <div className="bg-gray-900/80 border border-gray-700 rounded-3xl p-6 shadow-lg backdrop-blur-md transition-all duration-300 hover:shadow-2xl hover:scale-105 max-w-lg mx-auto">
       <div className="flex items-center space-x-3 mb-4">
         <img
           src={post.createdBy.profileImageURL || "/noAvatar.png"}
           alt={post.createdBy.username}
           className="w-12 h-12 rounded-full border border-gray-600"
         />
-        <Link
-          href={`/profile/${post.createdBy._id}`}
-          className="text-white text-lg font-semibold hover:text-blue-400 transition-all"
-        >
+        <Link href={`/profile/${post.createdBy._id}`} className="text-white text-lg font-semibold hover:text-blue-400">
           {post.createdBy.username}
         </Link>
       </div>
 
       <div className="relative">
-        {Array.isArray(post.images) && post.images.length > 0 ? (
-          post.images.length > 1 ? (
-            <div className="grid grid-cols-2 gap-3">
-              {post.images.map((image, index) => (
-                <img
-                  key={index}
-                  src={image}
-                  alt={`${post.title}-${index}`}
-                  className="w-full h-64 object-cover rounded-xl transition-all duration-300 hover:scale-105 shadow-lg"
-                />
-              ))}
-            </div>
+        {post.images.map((file, index) => {
+          const isVideo = file.endsWith(".mp4") || file.endsWith(".mov") || file.endsWith(".webm");
+          return isVideo ? (
+            <video
+              key={index}
+              src={file}
+              controls
+              muted
+              onClick={toggleVideo}
+              className="w-full h-auto object-cover rounded-xl shadow-lg"
+            />
           ) : (
             <img
-              src={post.images[0]}
-              alt={post.title}
-              className="w-full h-96 object-cover rounded-xl transition-all duration-300 hover:scale-105 shadow-lg"
+              key={index}
+              src={file}
+              alt={`${post.title}-${index}`}
+              className="w-full h-auto object-cover rounded-xl shadow-lg"
             />
-          )
-        ) : (
-          <div className="text-gray-400 text-center py-10">No images available</div>
-        )}
+          );
+        })}
       </div>
+
+      <p className="text-gray-300 text-md mt-4">{post.caption}</p>
 
       <div className="flex justify-between items-center text-gray-400 mt-5">
         <div className="flex space-x-5">

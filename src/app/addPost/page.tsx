@@ -11,6 +11,7 @@ export default function AddPost() {
   const [post, setPost] = useState({ title: "", body: "", coverImageURL: "" });
   const [media, setMedia] = useState<File | null>(null);
   const [mediaPreview, setMediaPreview] = useState<string | null>(null);
+  const [mediaType, setMediaType] = useState<"image" | "video" | null>(null);
   const [loading, setLoading] = useState(false);
 
   const handleMediaUpload = async (): Promise<string | null> => {
@@ -20,15 +21,16 @@ export default function AddPost() {
     }
 
     const formData = new FormData();
-    formData.append("media", media);
+    formData.append("file", media); // FIXED: Corrected key to "file"
+    formData.append("mediaType", mediaType || "image");
 
     try {
       const response = await axios.post("/api/image/upload", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
-      if (response.data.success) {
-        return response.data.secure_url;
+      if (response.data.coverImageURL) {
+        return response.data.coverImageURL;
       } else {
         toast.error("Failed to upload media.");
         return null;
@@ -62,13 +64,9 @@ export default function AddPost() {
   const handleMediaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const file = e.target.files[0];
-
-      if (!file.type.startsWith("image/")) {
-        toast.error("Only images are allowed.");
-        return;
-      }
-
+      const fileType = file.type.startsWith("video") ? "video" : "image";
       setMedia(file);
+      setMediaType(fileType);
 
       const reader = new FileReader();
       reader.onloadend = () => setMediaPreview(reader.result as string);
@@ -79,11 +77,8 @@ export default function AddPost() {
   return (
     <div className="min-h-screen flex justify-center items-center bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 px-4">
       <div className="max-w-md w-full bg-white rounded-2xl shadow-2xl p-6 space-y-6">
-        <h2 className="text-2xl font-bold text-center text-gray-900">
-          Create a New Post ✨
-        </h2>
+        <h2 className="text-2xl font-bold text-center text-gray-900">Create a New Post ✨</h2>
         <form onSubmit={(e) => { e.preventDefault(); onAddPost(); }} className="space-y-6">
-          {/* Title Input */}
           <input
             type="text"
             placeholder="Enter title..."
@@ -93,11 +88,10 @@ export default function AddPost() {
             required
           />
 
-          {/* Media Upload Section */}
           <div className="relative border-2 border-dashed border-gray-400 rounded-lg p-6 text-center cursor-pointer bg-gray-100">
             <input
               type="file"
-              accept="image/*"
+              accept="image/*,video/*"
               onChange={handleMediaChange}
               className="absolute inset-0 opacity-0 w-full h-full cursor-pointer"
             />
@@ -105,24 +99,26 @@ export default function AddPost() {
             <p className="text-gray-700">Click or Drag & Drop to Upload</p>
           </div>
 
-          {/* Preview Media */}
           {mediaPreview && (
             <div className="relative">
               <button
                 className="absolute top-2 right-2 bg-black bg-opacity-50 text-white p-1 rounded-full"
-                onClick={() => setMediaPreview(null)}
+                onClick={() => {
+                  setMediaPreview(null);
+                  setMedia(null);
+                  setMediaType(null);
+                }}
               >
                 <IoClose />
               </button>
-              <img
-                src={mediaPreview}
-                alt="Preview"
-                className="w-full h-48 object-cover rounded-lg"
-              />
+              {mediaType === "image" ? (
+                <img src={mediaPreview} alt="Preview" className="w-full h-48 object-cover rounded-lg" />
+              ) : (
+                <video src={mediaPreview} controls className="w-full h-48 rounded-lg" />
+              )}
             </div>
           )}
 
-          {/* Caption Input */}
           <textarea
             onChange={(e) => setPost({ ...post, body: e.target.value })}
             rows={3}
@@ -131,7 +127,6 @@ export default function AddPost() {
             required
           ></textarea>
 
-          {/* Submit Button */}
           <button
             type="submit"
             disabled={loading}
