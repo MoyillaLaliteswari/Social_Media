@@ -25,7 +25,7 @@ export default function Stories({ stories }: StoriesProps) {
   };
 
   if (!Array.isArray(stories) || stories.length === 0) {
-    return <p className="text-center text-gray-400">No stories available</p>;
+    return <p className="text-center text-gray-400"></p>;
   }
 
   return (

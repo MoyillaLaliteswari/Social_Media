@@ -37,7 +37,7 @@ export default function Stories({ stories }: StoriesProps) {
           </div>
         ))
       ) : (
-        <div className="text-center text-gray-500">No stories available</div>
+        <div className="text-center text-gray-500"></div>
       )}
     </div>
   );

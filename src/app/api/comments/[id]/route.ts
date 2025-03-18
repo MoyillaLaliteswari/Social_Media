@@ -13,9 +13,9 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Post ID is required" }, { status: 400 });
     }
 
-    const comments = await Comment.find({ postId }).populate('createdBy');
+    const comments = await Comment.find({ postId }).populate('createdBy') || [];
     if (!comments || comments.length === 0) {
-      return NextResponse.json({ message: "No comments found" }, { status: 404 });
+      return NextResponse.json({ message: "No comments found",comments});
     }
 
     return NextResponse.json({ message: "Comments fetched successfully", comments }, { status: 200 });
