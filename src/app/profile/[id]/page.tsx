@@ -31,9 +31,9 @@ interface Follower {
 }
 
 const UserProfile = () => {
-    const router = useRouter();
-    const params = useParams();
-    const userId = params?.id;
+  const router = useRouter();
+  const params = useParams();
+  const userId = params?.id;
 
   const [myId, setMyId] = useState<User | null>(null);
   const [profile, setProfile] = useState<User | null>(null);
@@ -47,6 +47,7 @@ const UserProfile = () => {
   const [followerList, setFollowerList] = useState<Follower[]>([]);
   const [followingList, setFollowingList] = useState<Follower[]>([]);
   const [recentPosts, setRecentPosts] = useState<Post[]>([]);
+  const [isFollowing, setIsFollowing] = useState(false);
 
   useEffect(() => {
     if (!userId) return;
@@ -55,19 +56,25 @@ const UserProfile = () => {
       try {
         const res = await axios.get(`/api/users/me`);
         setMyId(res.data.data);
-      } catch (error: any) {
+      } catch (error) {
         console.error("Error fetching my user data:", error);
       }
     };
 
+    fetchMyId();
+  }, []);
+
+  useEffect(() => {
+    if (!userId || !myId) return;
+
     const fetchProfile = async () => {
       try {
         const res = await axios.get(`/api/users/${userId}`);
-        console.log(res.data);
         const userData = res.data.user;
         setProfile(userData);
         setFollowersCount(userData.followers.length || 0);
         setFollowingCount(userData.following.length || 0);
+        setIsFollowing(userData.followers.includes(myId._id));
       } catch (error: any) {
         setError(error.response?.data?.message || "Error fetching user profile.");
       } finally {
@@ -103,12 +110,33 @@ const UserProfile = () => {
       }
     };
 
-    fetchMyId();
     fetchProfile();
     fetchPosts();
     fetchFollowers();
     fetchFollowing();
-  }, [userId]);
+  }, [userId, myId]);
+
+  const handleFollow = async () => {
+    if (!myId) return;
+    try {
+      await axios.post(`/api/follow/`, { userId, myId: myId._id });
+      setFollowersCount((prev) => prev + 1);
+      setIsFollowing(true);
+    } catch (error) {
+      console.error("Error following user:", error);
+    }
+  };
+
+  const handleUnfollow = async () => {
+    if (!myId) return;
+    try {
+      await axios.post(`/api/unfollow`, { userId, myId: myId._id });
+      setFollowersCount((prev) => prev - 1);
+      setIsFollowing(false);
+    } catch (error) {
+      console.error("Error unfollowing user:", error);
+    }
+  };
 
   return (
     <div className="flex flex-col items-center p-10 min-h-screen text-white bg-black">
@@ -126,18 +154,23 @@ const UserProfile = () => {
           <h2 className="text-gray-400">{profile.email}</h2>
           <p className="text-center mt-2 text-gray-300">{profile.bio || "No bio available"}</p>
 
-          <div className="flex justify-around w-full mt-6">
-            <div
-              className="text-center cursor-pointer p-4 bg-purple-700 rounded-lg shadow-md hover:bg-purple-600 transition duration-300"
-              onClick={() => setFollowersOpen(true)}
+          {myId?._id !== profile._id && (
+            <button
+              className={`mt-4 px-6 py-2 rounded-lg font-semibold transition duration-300 ${
+                isFollowing ? "bg-red-500 hover:bg-red-600" : "bg-blue-500 hover:bg-blue-600"
+              }`}
+              onClick={isFollowing ? handleUnfollow : handleFollow}
             >
+              {isFollowing ? "Unfollow" : "Follow"}
+            </button>
+          )}
+
+          <div className="flex justify-around w-full mt-6">
+            <div className="text-center cursor-pointer p-4 bg-purple-700 rounded-lg shadow-md hover:bg-purple-600 transition duration-300" onClick={() => setFollowersOpen(true)}>
               <p className="text-2xl font-bold text-white">{followersCount}</p>
               <p className="text-gray-300">Followers</p>
             </div>
-            <div
-              className="text-center cursor-pointer p-4 bg-purple-700 rounded-lg shadow-md hover:bg-purple-600 transition duration-300"
-              onClick={() => setFollowingOpen(true)}
-            >
+            <div className="text-center cursor-pointer p-4 bg-purple-700 rounded-lg shadow-md hover:bg-purple-600 transition duration-300" onClick={() => setFollowingOpen(true)}>
               <p className="text-2xl font-bold text-white">{followingCount}</p>
               <p className="text-gray-300">Following</p>
             </div>
@@ -147,12 +180,8 @@ const UserProfile = () => {
             </div>
           </div>
 
-          {followersOpen && (
-            <FollowModal title="Followers" list={followerList} onClose={() => setFollowersOpen(false)} />
-          )}
-          {followingOpen && (
-            <FollowModal title="Following" list={followingList} onClose={() => setFollowingOpen(false)} />
-          )}
+          {followersOpen && <FollowModal title="Followers" list={followerList} onClose={() => setFollowersOpen(false)} />}
+          {followingOpen && <FollowModal title="Following" list={followingList} onClose={() => setFollowingOpen(false)} />}
 
           <Link href={`/userPosts/${userId}`} className="mt-6 text-purple-400 hover:underline text-lg font-medium">
             View all posts
@@ -178,6 +207,7 @@ const UserProfile = () => {
               <p className="text-gray-400">No posts available</p>
             )}
           </div>
+
         </div>
       ) : (
         <p className="text-red-500">{error}</p>

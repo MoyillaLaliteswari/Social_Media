@@ -27,6 +27,7 @@ export default function Posts({ post }: PostProps) {
   const postId = post._id;
 
   useEffect(() => {
+    
     if (!postId) return;
     fetchUser();
   }, [postId]);
