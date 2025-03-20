@@ -104,9 +104,31 @@ const UserProfile = () => {
       }
     };
 
+
+    const fetchFollowers = async () => {
+      try {
+        const res = await axios.get(`/api/followers/${userId}`);
+        setFollowerList(res.data.followers);
+      } catch (error) {
+        console.error("Error fetching followers:", error);
+      }
+    };
+
+    const fetchFollowing = async () => {
+      try {
+        const res = await axios.get(`/api/following/${userId}`);
+        setFollowingList(res.data.following);
+      } catch (error) {
+        console.error("Error fetching following:", error);
+      }
+    };
+
+
     fetchProfile();
     fetchPosts();
     fetchFriendRequestStatus();
+    fetchFollowers();
+    fetchFollowing();
   }, [userId, myId]);
 
   const handleFollowRequest = async () => {
