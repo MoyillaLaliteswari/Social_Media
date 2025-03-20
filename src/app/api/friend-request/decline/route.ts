@@ -1,29 +1,32 @@
 import { connect } from "@/src/dbConfig/dbConfig";
 import { NextRequest, NextResponse } from "next/server";
-import User from "@/src/models/userModel";
 import FriendRequest from "@/src/models/friendRequest";
 
 connect();
 
-export async function POST(request: NextRequest) {
-    try {
-        const { requestId } = await request.json();
-
-        const friendRequest = await FriendRequest.findById(requestId);
-        if (!friendRequest) {
-            return NextResponse.json({ message: "Request not found." }, { status: 404 });
-        }
-
-        const { receiver } = friendRequest;
-
-        await User.findByIdAndUpdate(receiver, {
-            $pull: { pendingRequests: requestId }
-        });
-
-        await FriendRequest.findByIdAndDelete(requestId);
-
-        return NextResponse.json({ message: "Friend request declined." }, { status: 200 });
-    } catch (error: any) {
-        return NextResponse.json({ message: error.message }, { status: 500 });
+export async function DELETE(request: NextRequest) {
+    const { requestId, userId } = await request.json();
+  
+    if (!requestId || !userId) {
+      return NextResponse.json({ message: "Request ID and User ID required." }, { status: 400 });
     }
-}
+  
+    try {
+      const friendRequest = await FriendRequest.findById(requestId);
+  
+      if (!friendRequest || friendRequest.status !== "pending") {
+        return NextResponse.json({ message: "Request not found or already processed." }, { status: 404 });
+      }
+  
+      if (friendRequest.receiver.toString() !== userId) {
+        return NextResponse.json({ message: "Unauthorized." }, { status: 403 });
+      }
+  
+      await FriendRequest.findByIdAndDelete(requestId);
+  
+      return NextResponse.json({ message: "Friend request rejected." }, { status: 200 });
+    } catch (error: any) {
+      return NextResponse.json({ message: "An error occurred.", error }, { status: 500 });
+    }
+  }
+  

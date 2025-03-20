@@ -2,7 +2,7 @@
 
 import axios from "axios";
 import React, { useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import Link from "next/link";
 import FollowModal from "@/src/components/followFeature";
 import LeftMenu from "@/src/components/LeftMenu/leftMenu";
@@ -47,6 +47,7 @@ const UserProfile = () => {
   const [followingList, setFollowingList] = useState<Follower[]>([]);
   const [recentPosts, setRecentPosts] = useState<Post[]>([]);
   const [isFollowing, setIsFollowing] = useState(false);
+  const [isRequested, setIsRequested] = useState(false);
   const [isLoadingFollow, setIsLoadingFollow] = useState(false);
 
   useEffect(() => {
@@ -85,7 +86,6 @@ const UserProfile = () => {
     const fetchPosts = async () => {
       try {
         const res = await axios.get(`/api/userPosts/${userId}`);
-        console.log(res.data);
         setPostCount(res.data.length);
         setRecentPosts(res.data);
       } catch (error) {
@@ -93,39 +93,45 @@ const UserProfile = () => {
       }
     };
 
-    const fetchFollowers = async () => {
+    const fetchFriendRequestStatus = async () => {
       try {
-        const res = await axios.get(`/api/followers/${userId}`);
-        setFollowerList(res.data.followers);
+        const res = await axios.get(`/api/friend-request/status`, {
+          params: { senderId: myId._id, receiverId: userId },
+        });
+        setIsRequested(res.data.requested);
       } catch (error) {
-        console.error("Error fetching followers:", error);
-      }
-    };
-
-    const fetchFollowing = async () => {
-      try {
-        const res = await axios.get(`/api/following/${userId}`);
-        setFollowingList(res.data.following);
-      } catch (error) {
-        console.error("Error fetching following:", error);
+        console.error("Error checking friend request status:", error);
       }
     };
 
     fetchProfile();
     fetchPosts();
-    fetchFollowers();
-    fetchFollowing();
+    fetchFriendRequestStatus();
   }, [userId, myId]);
 
-  const handleFollow = async () => {
+  const handleFollowRequest = async () => {
     if (!myId || isLoadingFollow) return;
     setIsLoadingFollow(true);
     try {
-      await axios.post(`/api/follow/`, { userId, myId: myId._id });
-      setFollowersCount((prev) => prev + 1);
-      setIsFollowing(true);
+      await axios.post(`/api/friend-request/send`, { receiverId: userId, senderId: myId._id });
+      setIsRequested(true);
     } catch (error) {
-      console.error("Error following user:", error);
+      console.error("Error sending follow request:", error);
+    } finally {
+      setIsLoadingFollow(false);
+    }
+  };
+
+  const handleCancelRequest = async () => {
+    if (!myId || isLoadingFollow) return;
+    setIsLoadingFollow(true);
+    try {
+      await axios.delete(`/api/friend-request/cancel`,{
+        data: { senderId: myId._id, receiverId: userId }},
+      );
+      setIsRequested(false);
+    } catch (error) {
+      console.error("Error canceling request:", error);
     } finally {
       setIsLoadingFollow(false);
     }
@@ -164,16 +170,26 @@ const UserProfile = () => {
           {myId?._id !== profile._id && (
             <button
               className={`mt-4 px-6 py-2 rounded-lg font-semibold transition duration-300 ${
-                isFollowing ? "bg-red-500 hover:bg-red-600" : "bg-blue-500 hover:bg-blue-600"
+                isFollowing
+                  ? "bg-red-500 hover:bg-red-600"
+                  : isRequested
+                  ? "bg-gray-500 cursor-not-allowed"
+                  : "bg-blue-500 hover:bg-blue-600"
               } ${isLoadingFollow ? "opacity-50 cursor-not-allowed" : ""}`}
-              onClick={isFollowing ? handleUnfollow : handleFollow}
+              onClick={isFollowing ? handleUnfollow : isRequested ? handleCancelRequest : handleFollowRequest}
               disabled={isLoadingFollow}
             >
-              {isLoadingFollow ? "Processing..." : isFollowing ? "Unfollow" : "Follow"}
+              {isLoadingFollow
+                ? "Processing..."
+                : isFollowing
+                ? "Unfollow"
+                : isRequested
+                ? "Requested"
+                : "Follow"}
             </button>
           )}
 
-          <div className="flex justify-around w-full mt-6">
+<div className="flex justify-around w-full mt-6">
             <div className="text-center cursor-pointer p-4 bg-purple-700 rounded-lg shadow-md hover:bg-purple-600 transition duration-300" onClick={() => setFollowersOpen(true)}>
               <p className="text-2xl font-bold text-white">{followersCount}</p>
               <p className="text-gray-300">Followers</p>
@@ -217,8 +233,6 @@ const UserProfile = () => {
               <p className="text-gray-400">No posts available</p>
             )}
           </div>
-
-        
         </div>
       ) : (
         <p className="text-red-500">{error}</p>

@@ -60,17 +60,17 @@ const userSchema = new mongoose.Schema({
     sentRequests: [
         {
             type: mongoose.Schema.Types.ObjectId,
-            ref: "FriendRequest",  // Fixed typo
+            ref: "FriendRequest",
             default: []
         }
     ],
     receivedRequests: [
         {
             type: mongoose.Schema.Types.ObjectId,
-            ref: "FriendRequest",  // Fixed typo
+            ref: "FriendRequest",
             default: []
         }
-    ],
+    ],    
     stories: [
         {
             type: mongoose.Schema.Types.ObjectId,
