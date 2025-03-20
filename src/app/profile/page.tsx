@@ -69,6 +69,7 @@ const UserProfile = () => {
       try {
         if (userId) {
           const posts = await axios.get(`/api/userPosts/${userId}`);
+          console.log(posts.data);
           setPostCount(posts.data.length);
           setRecentPosts(posts.data);
         }
@@ -203,25 +204,28 @@ const UserProfile = () => {
           </Link>
 
           <div className="mt-6 w-full">
-            <h2 className="text-2xl font-semibold mb-4 text-white">Recent Posts</h2>
-            {recentPosts.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {recentPosts.map((post) => (
-                  <div key={post._id} className="bg-gray-700 p-4 rounded-xl shadow-lg hover:shadow-2xl transition duration-300">
-                    <img
-                      src={post.images.length > 0 ? post.images[0] : "/default.png"}
-                      alt="Post"
-                      className="w-full h-40 object-cover rounded-md transform hover:scale-105 transition duration-300"
-                    />
-                    <h1 className="text-lg font-semibold mt-2 text-white">{post.title}</h1>
-                    <p className="text-gray-400 text-sm">{post.caption}</p>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-gray-400">No posts available</p>
-            )}
+  <h2 className="text-2xl font-semibold mb-4 text-white">Recent Posts</h2>
+  {recentPosts.length > 0 ? (
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {recentPosts.slice(0,4).map((post) => (
+        <Link key={post._id} href={`/post/${post._id}`}>
+          <div className="bg-gray-700 p-4 rounded-xl shadow-lg hover:shadow-2xl transition duration-300 cursor-pointer">
+            <img
+              src={post.images.length > 0 ? post.images[0] : "/default.png"}
+              alt="Post"
+              className="w-full h-40 object-cover rounded-md transform hover:scale-105 transition duration-300"
+            />
+            <h1 className="text-lg font-semibold mt-2 text-white">{post.title}</h1>
+            <p className="text-gray-400 text-sm">{post.caption}</p>
           </div>
+        </Link>
+      ))}
+    </div>
+  ) : (
+    <p className="text-gray-400">No posts available</p>
+  )}
+</div>
+
         </div>
       ) : (
         <p className="text-red-500">{error}</p>

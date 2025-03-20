@@ -24,10 +24,11 @@ export default function Posts({ post }: PostProps) {
   const [user, setUser] = useState<any>(null);
   const [postComments, setPostComments] = useState<any[]>([]);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isLiking, setIsLiking] = useState(false);
+  const [isCommenting, setIsCommenting] = useState(false);
   const postId = post._id;
 
   useEffect(() => {
-    
     if (!postId) return;
     fetchUser();
   }, [postId]);
@@ -60,13 +61,17 @@ export default function Posts({ post }: PostProps) {
 
   const onComment = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!commentText.trim()) return;
+    if (!commentText.trim() || isCommenting) return;
+
+    setIsCommenting(true);
     try {
       await axios.post("/api/comments", { commentText, user, postId });
       setCommentText("");
       fetchComments();
     } catch (error) {
       console.error("Error submitting comment:", error);
+    } finally {
+      setIsCommenting(false);
     }
   };
 
@@ -80,7 +85,9 @@ export default function Posts({ post }: PostProps) {
   };
 
   const toggleLike = async () => {
-    if (!user) return;
+    if (!user || isLiking) return;
+
+    setIsLiking(true);
     try {
       if (hasLiked) {
         await axios.post(`/api/unlike/${postId}`, { userId: user });
@@ -92,6 +99,8 @@ export default function Posts({ post }: PostProps) {
       setHasLiked(!hasLiked);
     } catch (error) {
       console.error("Error toggling like:", error);
+    } finally {
+      setIsLiking(false);
     }
   };
 
@@ -127,76 +136,72 @@ export default function Posts({ post }: PostProps) {
 
   return (
     <div className="bg-gradient-to-br from-gray-900/80 to-gray-800/80 border border-gray-700 rounded-2xl p-4 shadow-lg backdrop-blur-md transition-all duration-300 hover:shadow-xl max-w-md mx-auto">
-  <div className="flex items-center space-x-2 mb-3">
-    <img
-      src={post.createdBy.profileImageURL || "/noAvatar.png"}
-      alt={post.createdBy.username}
-      className="w-8 h-8 rounded-full border border-gray-600 object-cover"
-    />
-    <Link href={`/profile/${post.createdBy._id}`} className="text-white text-sm font-semibold hover:text-blue-300 transition-colors">
-      {post.createdBy.username}
-    </Link>
-  </div>
-
-  <div className="relative mb-3 rounded-lg overflow-hidden">
-    {post.images.map((file, index) => {
-      const isVideo = file.endsWith(".mp4") || file.endsWith(".mov") || file.endsWith(".webm");
-      return isVideo ? (
-        <video
-          key={index}
-          src={file}
-          controls
-          muted
-          onClick={toggleVideo}
-          className="w-full aspect-auto object-contain rounded-lg" // Changed aspect-square to aspect-auto, object-cover to object-contain, and added rounded-lg
-        />
-      ) : (
+      <div className="flex items-center space-x-2 mb-3">
         <img
-          key={index}
-          src={file}
-          alt={`${post.title}-${index}`}
-          className="w-full aspect-auto object-contain rounded-lg" // Changed aspect-square to aspect-auto, object-cover to object-contain, and added rounded-lg
+          src={post.createdBy.profileImageURL || "/noAvatar.png"}
+          alt={post.createdBy.username}
+          className="w-8 h-8 rounded-full border border-gray-600 object-cover"
         />
-      );
-    })}
-  </div>
+        <Link href={`/profile/${post.createdBy._id}`} className="text-white text-sm font-semibold hover:text-blue-300 transition-colors">
+          {post.createdBy.username}
+        </Link>
+      </div>
 
-  <p className="text-gray-300 text-xs mt-1 line-clamp-2 leading-relaxed">
-    {post.caption}
-  </p>
+      <div className="relative mb-3 rounded-lg overflow-hidden">
+        {post.images.map((file, index) => {
+          const isVideo = file.endsWith(".mp4") || file.endsWith(".mov") || file.endsWith(".webm");
+          return isVideo ? (
+            <video
+              key={index}
+              src={file}
+              controls
+              muted
+              onClick={toggleVideo}
+              className="w-full aspect-auto object-contain rounded-lg"
+            />
+          ) : (
+            <img
+              key={index}
+              src={file}
+              alt={`${post.title}-${index}`}
+              className="w-full aspect-auto object-contain rounded-lg"
+            />
+          );
+        })}
+      </div>
 
-  <div className="flex justify-between items-center text-gray-400 mt-3">
-    <div className="flex space-x-3">
-      <button onClick={toggleLike} className="flex items-center space-x-1">
-        {hasLiked ? (
-          <FaHeart className="text-lg text-red-500 cursor-pointer transition-all animate-pulse" />
-        ) : (
-          <FaRegHeart className="text-lg cursor-pointer hover:text-red-400 transition-colors" />
-        )}
-        <span className="text-white text-xs">{postLikes}</span>
-      </button>
-      <FaComment className="text-lg cursor-pointer hover:text-blue-300 transition-colors" />
-    </div>
-  </div>
+      <p className="text-gray-300 text-xs mt-1 line-clamp-2 leading-relaxed">{post.caption}</p>
 
-  <div className="mt-3">
-    <form onSubmit={onComment} className="flex items-center space-x-2">
-      <input
-        type="text"
-        value={commentText}
-        onChange={(e) => setCommentText(e.target.value)}
-        placeholder="Add a comment..."
-        className="w-full bg-gray-800/70 text-white p-2 rounded-full border border-gray-600 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400 transition-shadow"
-      />
-      <button
-        type="submit"
-        className="bg-blue-500 text-white px-3 py-1 rounded-full text-xs hover:bg-blue-400 transition-colors"
-      >
-        Post
-      </button>
-    </form>
+      <div className="flex justify-between items-center text-gray-400 mt-3">
+        <div className="flex space-x-3">
+          <button onClick={toggleLike} className="flex items-center space-x-1" disabled={isLiking}>
+            {hasLiked ? (
+              <FaHeart className="text-lg text-red-500 cursor-pointer transition-all animate-pulse" />
+            ) : (
+              <FaRegHeart className="text-lg cursor-pointer hover:text-red-400 transition-colors" />
+            )}
+            <span className="text-white text-xs">{postLikes}</span>
+          </button>
+          <FaComment className="text-lg cursor-pointer hover:text-blue-300 transition-colors" />
+        </div>
+      </div>
 
-    <div className="mt-2 space-y-2 max-h-32 overflow-y-auto sleek-scrollbar">
+      <div className="mt-3">
+        <form onSubmit={onComment} className="flex items-center space-x-2">
+          <input
+            type="text"
+            value={commentText}
+            onChange={(e) => setCommentText(e.target.value)}
+            placeholder="Add a comment..."
+            className="w-full bg-gray-800/70 text-white p-2 rounded-full border border-gray-600 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400 transition-shadow"
+          />
+          <button type="submit" className="bg-blue-500 text-white px-3 py-1 rounded-full text-xs hover:bg-blue-400 transition-colors" disabled={isCommenting}>
+            Post
+          </button>
+        </form>
+      </div>
+      
+      <div className="mt-2 space-y-2 max-h-32 overflow-y-auto sleek-scrollbar">
       {postComments.length > 0 ? (
         postComments.map((comment, index) => (
           <div key={index} className="flex items-start space-x-2 animate-fade-in">
@@ -223,7 +228,7 @@ export default function Posts({ post }: PostProps) {
         <p className="text-gray-500 text-xs">No comments yet.</p>
       )}
     </div>
-  </div>
-</div>
+
+    </div>
   );
 }

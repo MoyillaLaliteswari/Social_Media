@@ -11,12 +11,12 @@ export async function GET(request:NextResponse){
         if(!postId){
             return NextResponse.json({error:"Post id is required",status:400});
         }
-        const post=await Post.findById(postId);
+        const post=await Post.findById(postId).populate('createdBy');
         if(!post){
             return NextResponse.json({error:"Post not found",status:404});
         }
-        const user=await User.findById(post.createdBy);
-        return NextResponse.json({post,user,status:200});
+        
+        return NextResponse.json(post);
     }catch(error:any){
         return NextResponse.json({error:error.message,status:500});
     }

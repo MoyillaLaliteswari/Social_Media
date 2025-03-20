@@ -31,7 +31,6 @@ interface Follower {
 }
 
 const UserProfile = () => {
-  const router = useRouter();
   const params = useParams();
   const userId = params?.id;
 
@@ -48,6 +47,7 @@ const UserProfile = () => {
   const [followingList, setFollowingList] = useState<Follower[]>([]);
   const [recentPosts, setRecentPosts] = useState<Post[]>([]);
   const [isFollowing, setIsFollowing] = useState(false);
+  const [isLoadingFollow, setIsLoadingFollow] = useState(false);
 
   useEffect(() => {
     if (!userId) return;
@@ -85,6 +85,7 @@ const UserProfile = () => {
     const fetchPosts = async () => {
       try {
         const res = await axios.get(`/api/userPosts/${userId}`);
+        console.log(res.data);
         setPostCount(res.data.length);
         setRecentPosts(res.data);
       } catch (error) {
@@ -117,24 +118,30 @@ const UserProfile = () => {
   }, [userId, myId]);
 
   const handleFollow = async () => {
-    if (!myId) return;
+    if (!myId || isLoadingFollow) return;
+    setIsLoadingFollow(true);
     try {
       await axios.post(`/api/follow/`, { userId, myId: myId._id });
       setFollowersCount((prev) => prev + 1);
       setIsFollowing(true);
     } catch (error) {
       console.error("Error following user:", error);
+    } finally {
+      setIsLoadingFollow(false);
     }
   };
 
   const handleUnfollow = async () => {
-    if (!myId) return;
+    if (!myId || isLoadingFollow) return;
+    setIsLoadingFollow(true);
     try {
       await axios.post(`/api/unfollow`, { userId, myId: myId._id });
       setFollowersCount((prev) => prev - 1);
       setIsFollowing(false);
     } catch (error) {
       console.error("Error unfollowing user:", error);
+    } finally {
+      setIsLoadingFollow(false);
     }
   };
 
@@ -158,10 +165,11 @@ const UserProfile = () => {
             <button
               className={`mt-4 px-6 py-2 rounded-lg font-semibold transition duration-300 ${
                 isFollowing ? "bg-red-500 hover:bg-red-600" : "bg-blue-500 hover:bg-blue-600"
-              }`}
+              } ${isLoadingFollow ? "opacity-50 cursor-not-allowed" : ""}`}
               onClick={isFollowing ? handleUnfollow : handleFollow}
+              disabled={isLoadingFollow}
             >
-              {isFollowing ? "Unfollow" : "Follow"}
+              {isLoadingFollow ? "Processing..." : isFollowing ? "Unfollow" : "Follow"}
             </button>
           )}
 
@@ -191,16 +199,18 @@ const UserProfile = () => {
             <h2 className="text-2xl font-semibold mb-4 text-white">Recent Posts</h2>
             {recentPosts.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {recentPosts.map((post) => (
-                  <div key={post._id} className="bg-gray-700 p-4 rounded-xl shadow-lg hover:shadow-2xl transition duration-300">
-                    <img
-                      src={post.images.length > 0 ? post.images[0] : "/default.png"}
-                      alt="Post"
-                      className="w-full h-40 object-cover rounded-md transform hover:scale-105 transition duration-300"
-                    />
-                    <h1 className="text-lg font-semibold mt-2 text-white">{post.title}</h1>
-                    <p className="text-gray-400 text-sm">{post.caption}</p>
-                  </div>
+                {recentPosts.slice(0,4).map((post) => (
+                  <Link key={post._id} href={`/post/${post._id}`}>
+                    <div className="bg-gray-700 p-4 rounded-xl shadow-lg hover:shadow-2xl transition duration-300 cursor-pointer">
+                      <img
+                        src={post.images.length > 0 ? post.images[0] : "/default.png"}
+                        alt="Post"
+                        className="w-full h-40 object-cover rounded-md transform hover:scale-105 transition duration-300"
+                      />
+                      <h1 className="text-lg font-semibold mt-2 text-white">{post.title}</h1>
+                      <p className="text-gray-400 text-sm">{post.caption}</p>
+                    </div>
+                  </Link>
                 ))}
               </div>
             ) : (
@@ -208,6 +218,7 @@ const UserProfile = () => {
             )}
           </div>
 
+        
         </div>
       ) : (
         <p className="text-red-500">{error}</p>
