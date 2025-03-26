@@ -5,8 +5,9 @@ import { motion } from 'framer-motion';
 import ProfileCard from '@/src/components/LeftMenu/profileCard';
 
 interface SuggestedUser {
-  _id?: number;
+  _id: string;
   username: string;
+  profileImageURL: string;
 }
 
 export default function RightMenu({ suggested }: { suggested: SuggestedUser[] }) {
@@ -26,27 +27,25 @@ export default function RightMenu({ suggested }: { suggested: SuggestedUser[] })
           Suggested for you
         </h3>
 
-        {Array.isArray(suggested) && suggested.length > 0 ? (
+        {suggested.length > 0 ? (
           <div className="space-y-4 mt-4">
-            {suggested.slice(0, 3).map((user, index) => (
-              <div 
-                key={user._id ?? index} 
-                className="flex items-center justify-between bg-gray-800 bg-opacity-40 rounded-xl p-3 transition-all duration-300 hover:bg-gray-700"
+            {suggested.slice(0, 3).map((user) => (
+              <Link 
+                key={user._id} 
+                href={`/profile/${user._id}`}
+                className="flex items-center bg-gray-800 bg-opacity-40 rounded-xl p-3 transition-all duration-300 hover:bg-gray-700 cursor-pointer"
               >
-                <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-gray-700 rounded-full flex items-center justify-center text-white font-medium">
-                    {user.username.charAt(0).toUpperCase()}
-                  </div>
-                  <p className="text-white text-sm font-medium">{user.username}</p>
+                {/* Profile Image or Default Avatar */}
+                <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-700 flex items-center justify-center text-white font-medium">
+                  {user.profileImageURL ? (
+                    <img src={user.profileImageURL} alt={user.username} className="w-full h-full object-cover" />
+                  ) : (
+                    <span>{user.username.charAt(0).toUpperCase()}</span>
+                  )}
                 </div>
 
-                <Link 
-                  href={`/profile/${user._id ?? ''}`} 
-                  className="text-sm font-bold text-blue-400 border border-blue-400 px-3 py-1 rounded-lg transition-all duration-300 hover:bg-blue-500 hover:text-white"
-                >
-                  Follow
-                </Link>
-              </div>
+                <p className="text-white text-sm font-medium ml-3">{user.username}</p>
+              </Link>
             ))}
           </div>
         ) : (

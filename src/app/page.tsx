@@ -31,13 +31,14 @@ interface Post {
 }
 
 interface SuggestedUser {
-  _id: number;
+  _id: string;
   username: string;
+  profileImageURL: string;
 }
 
 export default function Home() {
   const [stories, setStories] = useState<Story[]>([]);
-  const [myStories, setMyStories] = useState<Story[]>([]);
+  // const [myStories, setMyStories] = useState<Story[]>([]);
   const [posts, setPosts] = useState<Post[]>([]);
   const [suggested, setSuggested] = useState<SuggestedUser[]>([]);
   const [loading, setLoading] = useState(true);
@@ -45,11 +46,11 @@ export default function Home() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const [postsRes, storiesRes, suggestedRes,myStories] = await Promise.all([
+        const [postsRes, storiesRes, suggestedRes] = await Promise.all([
           axios.get('/api/posts/home'),
           axios.get('/api/stories/following'),
           axios.get('/api/suggestions'),
-          axios.get('/api/stories/my'),
+          // axios.get('/api/stories/my'),
         ]);
 
         console.log('Posts API Response:', postsRes.data.posts);
@@ -66,7 +67,7 @@ export default function Home() {
 
         setStories(Array.isArray(storiesRes.data.stories) ? storiesRes.data.stories : []);
         setSuggested(Array.isArray(suggestedRes.data.suggested) ? suggestedRes.data.suggested : []);
-        setMyStories(Array.isArray(storiesRes.data.stories) ? myStories.data.stories : []);
+        // setMyStories(Array.isArray(storiesRes.data.stories) ? myStories.data.stories : []);
       } catch (error) {
         console.error('Error fetching data:', error);
       } finally {
@@ -99,7 +100,7 @@ export default function Home() {
             <>
               <div className="sticky top-0 bg-gray-900 z-10 pb-3 flex px-4 items-center gap-4">
                 <AddStory />
-                <Stories stories={myStories} />
+                {/* <Stories stories={myStories} /> */}
                 <Stories stories={stories} />
               </div>
               <div className="h-[80vh] overflow-y-auto hide-scrollbar space-y-8">

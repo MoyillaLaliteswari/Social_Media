@@ -149,6 +149,11 @@ const UserProfile = () => {
     setIsEditingBio(!isEditingBio);
   };
 
+  const isVideo = (url: string) => {
+    return url.match(/\.(mp4|mov|avi|wmv|flv|webm)$/i);
+  };
+
+
   return (
       <div className="flex flex-col items-center min-h-screen bg-black text-white p-10">
         <LeftMenu />
@@ -246,11 +251,11 @@ const UserProfile = () => {
                   {recentPosts.slice(0, 4).map((post) => (
                     <Link key={post._id} href={`/post/${post._id}`}>
                       <div className="bg-gray-700 p-4 rounded-xl shadow-lg hover:shadow-2xl transition duration-300 cursor-pointer">
-                        <img
-                          src={post.images.length > 0 ? post.images[0] : "/default.png"}
-                          alt="Post"
-                          className="w-full h-40 object-cover rounded-md transform hover:scale-105 transition duration-300"
-                        />
+                      <img
+                        src={post.images.length > 0 ? (isVideo(post.images[0]) ? "/videos.png" : post.images[0]) : "/default.png"}
+                        alt="Post"
+                        className="w-full h-40 object-cover rounded-md transform hover:scale-105 transition duration-300"
+                      />
                         <h1 className="text-lg font-semibold mt-2 text-white">{post.title}</h1>
                         <p className="text-gray-400 text-sm">{post.caption}</p>
                       </div>

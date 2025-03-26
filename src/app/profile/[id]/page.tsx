@@ -86,7 +86,7 @@ const UserProfile = () => {
     const fetchPosts = async () => {
       try {
         const res = await axios.get(`/api/userPosts/${userId}`);
-        setPostCount(res.data.length);
+        setPostCount(res.data.length || 0);
         setRecentPosts(res.data);
       } catch (error) {
         console.error("Error fetching user posts:", error);
@@ -172,6 +172,9 @@ const UserProfile = () => {
       setIsLoadingFollow(false);
     }
   };
+  const isVideo = (url: string) => {
+    return url.match(/\.(mp4|mov|avi|wmv|flv|webm)$/i);
+  };
 
   return (
     <div className="flex flex-col items-center p-10 min-h-screen text-white bg-black">
@@ -240,8 +243,8 @@ const UserProfile = () => {
                 {recentPosts.slice(0,4).map((post) => (
                   <Link key={post._id} href={`/post/${post._id}`}>
                     <div className="bg-gray-700 p-4 rounded-xl shadow-lg hover:shadow-2xl transition duration-300 cursor-pointer">
-                      <img
-                        src={post.images.length > 0 ? post.images[0] : "/default.png"}
+                    <img
+                        src={post.images.length > 0 ? (isVideo(post.images[0]) ? "/addVideo.png" : post.images[0]) : "/default.png"}
                         alt="Post"
                         className="w-full h-40 object-cover rounded-md transform hover:scale-105 transition duration-300"
                       />
