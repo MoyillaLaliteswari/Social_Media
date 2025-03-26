@@ -7,11 +7,11 @@ connect();
 export async function POST(request:NextRequest){
     try{
         const req=await request.json();
-        const {user,bio}=req;
-        if(!user || !bio){
+        const {profile,bio}=req;
+        if(!profile || !bio){
             return NextResponse.json({message:"Give a valid bio!"},{status:400});
         }
-        const currentUser=await User.findById(user._id);
+        const currentUser=await User.findById(profile._id);
 
         if(!currentUser){
             return NextResponse.json({message:"User not Authenticated!"},{status:400});

@@ -71,7 +71,7 @@ const ProfileCard = () => {
 
       {/* Profile Button */}
       <div className="mt-3 flex justify-center">
-        <Link href={`/profile/${user._id}`}>
+        <Link href={`/profile`}>
           <button className="bg-blue-500 text-white text-sm px-4 py-2 rounded-lg shadow-md hover:bg-blue-600 transition">
             My Profile
           </button>

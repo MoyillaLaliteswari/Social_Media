@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const blog = await Post.create({
+    const post = await Post.create({
       title,
       caption,
       images,
@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json(
-      { message: "Blog Published Successfully", success: true, blog },
+      { message: "Blog Published Successfully", success: true, post },
       { status: 201 }
     );
   } catch (error: any) {

@@ -50,6 +50,7 @@ export default function AddPost() {
 
       const updatedPost = { ...post, mediaURL: url };
       const response = await axios.post("/api/posts/addPost", updatedPost);
+      console.log(response)
       toast.success("Post created successfully!");
       router.push(`/post/${response.data.post._id}`);
     } catch (error) {

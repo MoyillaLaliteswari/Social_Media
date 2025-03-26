@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
-import { FaRegHeart, FaHeart, FaComment, FaReply } from "react-icons/fa";
+import { FaRegHeart, FaHeart, FaComment, FaReply,FaTrash  } from "react-icons/fa";
 import Link from "next/link";
 import axios from "axios";
+import { useRouter } from "next/navigation";
 
 interface PostProps {
   post: {
@@ -18,6 +19,7 @@ interface PostProps {
 }
 
 export default function Posts({ post }: PostProps) {
+  const router=useRouter()
   const [postLikes, setPostLikes] = useState(0);
   const [hasLiked, setHasLiked] = useState(false);
   const [commentText, setCommentText] = useState("");
@@ -51,6 +53,20 @@ export default function Posts({ post }: PostProps) {
       setUser(data.data._id);
     } catch (error) {
       console.error("Error fetching user:", error);
+    }
+  };
+
+  const deletePost = async () => {
+    if (!window.confirm("Are you sure you want to delete this post?")) return;
+
+    try {
+      await axios.delete(`/api/postDelete/${postId}`);
+      alert("Post deleted successfully.");
+      router.refresh();
+      router.push('/');
+      // Optionally, refresh or update UI
+    } catch (error) {
+      console.error("Error deleting post:", error);
     }
   };
 
@@ -161,6 +177,18 @@ export default function Posts({ post }: PostProps) {
     }
   };
 
+  const deleteComment=async(commentId:any)=>{
+    if (!window.confirm("Are you sure you want to delete this comment?")) return;
+    try {
+      const del=await axios.delete(`api/commentDelete/${commentId}`)
+      alert("Comment deleted successfully.");
+      console.log(del);
+      fetchComments();
+    } catch (error) {
+      console.log("error",error);
+    }
+  }
+
   const formatTimeAgo = (timestamp: string) => {
     const now = new Date();
     const past = new Date(timestamp);
@@ -182,198 +210,214 @@ export default function Posts({ post }: PostProps) {
   };
 
   return (
-    <div className="bg-gradient-to-br from-gray-900/80 to-gray-800/80 border border-gray-700 rounded-2xl p-4 shadow-lg backdrop-blur-md transition-all duration-300 hover:shadow-xl max-w-md mx-auto">
-      <div className="flex items-center space-x-2 mb-3">
-        <img
-          src={post.createdBy.profileImageURL || "/noAvatar.png"}
-          alt={post.createdBy.username}
-          className="w-8 h-8 rounded-full border border-gray-600 object-cover"
+<div className="bg-gradient-to-br from-gray-900/80 to-gray-800/80 border border-gray-700 rounded-2xl p-4 shadow-lg backdrop-blur-md transition-all duration-300 hover:shadow-xl max-w-md mx-auto">
+  <div className="flex items-center space-x-2 mb-3">
+    <img
+      src={post.createdBy.profileImageURL || "/noAvatar.png"}
+      alt={post.createdBy.username}
+      className="w-8 h-8 rounded-full border border-gray-600 object-cover"
+    />
+    <Link
+      href={`/profile/${post.createdBy._id}`}
+      className="text-white text-sm font-semibold hover:text-blue-300 transition-colors"
+    >
+      {post.createdBy.username}
+    </Link>
+
+    {user === post.createdBy._id && (
+      <button
+        onClick={deletePost}
+        className="text-red-500 hover:text-red-400 transition-all px-60"
+      >
+        <FaTrash className="text-lg" />
+      </button>
+    )}
+  </div>
+
+  <div className="relative mb-3 rounded-lg overflow-hidden">
+    {post.images.map((file, index) => {
+      const isVideo =
+        file.endsWith(".mp4") ||
+        file.endsWith(".mov") ||
+        file.endsWith(".webm");
+      return isVideo ? (
+        <video
+          key={index}
+          src={file}
+          controls
+          muted
+          onClick={toggleVideo}
+          className="w-full aspect-auto object-contain rounded-lg"
         />
-        <Link
-          href={`/profile/${post.createdBy._id}`}
-          className="text-white text-sm font-semibold hover:text-blue-300 transition-colors"
+      ) : (
+        <img
+          key={index}
+          src={file}
+          alt={`${post.title}-${index}`}
+          className="w-full aspect-auto object-contain rounded-lg"
+        />
+      );
+    })}
+  </div>
+
+  <p className="text-gray-300 text-xs mt-1 line-clamp-2 leading-relaxed">
+    {post.caption}
+  </p>
+
+  <div className="flex justify-between items-center text-gray-400 mt-3">
+    <div className="flex space-x-3">
+      <button
+        onClick={toggleLike}
+        className="flex items-center space-x-1"
+        disabled={isLiking}
+      >
+        {hasLiked ? (
+          <FaHeart className="text-lg text-red-500 cursor-pointer transition-all animate-pulse" />
+        ) : (
+          <FaRegHeart className="text-lg cursor-pointer hover:text-red-400 transition-colors" />
+        )}
+        <span className="text-white text-xs">{postLikes}</span>
+      </button>
+      <FaComment className="text-lg cursor-pointer hover:text-blue-300 transition-colors" />
+    </div>
+  </div>
+
+  <div className="mt-3">
+    <form onSubmit={onComment} className="flex items-center space-x-2">
+      <input
+        type="text"
+        value={commentText}
+        onChange={(e) => setCommentText(e.target.value)}
+        placeholder="Add a comment..."
+        className="w-full bg-gray-800/70 text-white p-2 rounded-full border border-gray-600 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400 transition-shadow"
+      />
+      <button
+        type="submit"
+        className="bg-blue-500 text-white px-3 py-1 rounded-full text-xs hover:bg-blue-400 transition-colors"
+        disabled={isCommenting}
+      >
+        Post
+      </button>
+    </form>
+  </div>
+
+  <div className="mt-2 space-y-2 max-h-40 overflow-y-auto sleek-scrollbar">
+    {postComments.length > 0 ? (
+      postComments.map((comment) => (
+        <div
+          key={comment._id}
+          className="flex flex-col space-y-2 animate-fade-in"
         >
-          {post.createdBy.username}
-        </Link>
-      </div>
-
-      <div className="relative mb-3 rounded-lg overflow-hidden">
-        {post.images.map((file, index) => {
-          const isVideo =
-            file.endsWith(".mp4") ||
-            file.endsWith(".mov") ||
-            file.endsWith(".webm");
-          return isVideo ? (
-            <video
-              key={index}
-              src={file}
-              controls
-              muted
-              onClick={toggleVideo}
-              className="w-full aspect-auto object-contain rounded-lg"
-            />
-          ) : (
+          <div className="flex items-start space-x-2">
             <img
-              key={index}
-              src={file}
-              alt={`${post.title}-${index}`}
-              className="w-full aspect-auto object-contain rounded-lg"
+              src={comment.createdBy.profileImageURL || "/noAvatar.png"}
+              alt={comment.createdBy.username}
+              className="w-6 h-6 rounded-full border border-gray-600 object-cover"
             />
-          );
-        })}
-      </div>
+            <div className="bg-gray-800/80 p-2 rounded-lg text-xs max-w-[80%]">
+              <p className="text-xs">
+                <Link
+                  href={`/profile/${comment.createdBy._id}`}
+                  className="font-semibold text-white hover:text-blue-300 transition-colors"
+                >
+                  {comment.createdBy.username}
+                </Link>
+                <span className="text-gray-400 ml-1">{comment.comment}</span>
+              </p>
+              <span className="text-[0.6rem] text-gray-500">
+                {formatTimeAgo(comment.createdAt)}
+              </span>
+              <div className="flex space-x-3 mt-1">
+                <button
+                  onClick={() => toggleCommentLike(comment._id)}
+                  className="text-xs text-gray-400 flex items-center space-x-1"
+                >
+                  <FaRegHeart />
+                  <span>{comment.likes}</span>
+                </button>
+                <button
+                  onClick={() => toggleReplies(comment._id)}
+                  className="text-xs text-blue-400 flex items-center space-x-1"
+                >
+                  <FaReply />
+                  <span>Replies</span>
+                </button>
 
-      <p className="text-gray-300 text-xs mt-1 line-clamp-2 leading-relaxed">
-        {post.caption}
-      </p>
+                {/* Delete Comment Button */}
+                {user === comment.createdBy._id && (
+                  <button
+                    onClick={() => deleteComment(comment._id)}
+                    className="text-red-500 hover:text-red-400 transition-all"
+                  >
+                    <FaTrash className="text-xs" />
+                  </button>
+                )}
+              </div>
 
-      <div className="flex justify-between items-center text-gray-400 mt-3">
-        <div className="flex space-x-3">
-          <button
-            onClick={toggleLike}
-            className="flex items-center space-x-1"
-            disabled={isLiking}
-          >
-            {hasLiked ? (
-              <FaHeart className="text-lg text-red-500 cursor-pointer transition-all animate-pulse" />
-            ) : (
-              <FaRegHeart className="text-lg cursor-pointer hover:text-red-400 transition-colors" />
-            )}
-            <span className="text-white text-xs">{postLikes}</span>
-          </button>
-          <FaComment className="text-lg cursor-pointer hover:text-blue-300 transition-colors" />
-        </div>
-      </div>
-
-      <div className="mt-3">
-        <form onSubmit={onComment} className="flex items-center space-x-2">
-          <input
-            type="text"
-            value={commentText}
-            onChange={(e) => setCommentText(e.target.value)}
-            placeholder="Add a comment..."
-            className="w-full bg-gray-800/70 text-white p-2 rounded-full border border-gray-600 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400 transition-shadow"
-          />
-          <button
-            type="submit"
-            className="bg-blue-500 text-white px-3 py-1 rounded-full text-xs hover:bg-blue-400 transition-colors"
-            disabled={isCommenting}
-          >
-            Post
-          </button>
-        </form>
-      </div>
-
-      <div className="mt-2 space-y-2 max-h-40 overflow-y-auto sleek-scrollbar">
-        {postComments.length > 0 ? (
-          postComments.map((comment) => (
-            <div
-              key={comment._id}
-              className="flex flex-col space-y-2 animate-fade-in"
-            >
-              <div className="flex items-start space-x-2">
-                <img
-                  src={comment.createdBy.profileImageURL || "/noAvatar.png"}
-                  alt={comment.createdBy.username}
-                  className="w-6 h-6 rounded-full border border-gray-600 object-cover"
-                />
-                <div className="bg-gray-800/80 p-2 rounded-lg text-xs max-w-[80%]">
-                  <p className="text-xs">
-                    <Link
-                      href={`/profile/${comment.createdBy._id}`}
-                      className="font-semibold text-white hover:text-blue-300 transition-colors"
-                    >
-                      {comment.createdBy.username}
-                    </Link>
-                    <span className="text-gray-400 ml-1">
-                      {comment.comment}
-                    </span>
-                  </p>
-                  <span className="text-[0.6rem] text-gray-500">
-                    {formatTimeAgo(comment.createdAt)}
-                  </span>
-                  <div className="flex space-x-3 mt-1">
-                    <button
-                      onClick={() => toggleCommentLike(comment._id)}
-                      className="text-xs text-gray-400 flex items-center space-x-1"
-                    >
-                      <FaRegHeart />
-                      <span>{comment.likes}</span>
-                    </button>
-                    <button
-                      onClick={() => toggleReplies(comment._id)}
-                      className="text-xs text-blue-400 flex items-center space-x-1"
-                    >
-                      <FaReply />
-                      <span>Replies</span>
-                    </button>
-                  </div>
-                  {showReplies[comment._id] &&
-                    comment.replies?.map((reply: any) => (
-                      <div
-                        key={reply._id}
-                        className="ml-4 mt-2 flex items-start space-x-2"
-                      >
-                        {reply.createdBy ? (
-                          <>
-                            <img
-                              src={
-                                reply.createdBy.profileImageURL ||
-                                "/noAvatar.png"
-                              }
-                              alt={reply.createdBy.username || "Anonymous"}
-                              className="w-5 h-5 rounded-full border border-gray-600 object-cover"
-                            />
-                            <div className="bg-gray-700/80 p-2 rounded-lg text-xs max-w-[75%]">
-                              <p className="text-xs">
-                                <Link
-                                  href={`/profile/${reply.createdBy._id}`}
-                                  className="font-semibold text-white hover:text-blue-300 transition-colors"
-                                >
-                                  {reply.createdBy.username}
-                                </Link>
-                                <span className="text-gray-400 ml-1">
-                                  {reply.comment}
-                                </span>
-                              </p>
-                              <span className="text-[0.6rem] text-gray-500">
-                                {formatTimeAgo(reply.createdAt)}
-                              </span>
-                            </div>
-                          </>
-                        ) : (
-                          <div className="bg-gray-700/80 p-2 rounded-lg text-xs max-w-[75%]">
-                            <p className="text-gray-400">[Deleted User]</p>
-                            <span className="text-gray-500">
+              {showReplies[comment._id] &&
+                comment.replies?.map((reply: any) => (
+                  <div
+                    key={reply._id}
+                    className="ml-4 mt-2 flex items-start space-x-2"
+                  >
+                    {reply.createdBy ? (
+                      <>
+                        <img
+                          src={
+                            reply.createdBy.profileImageURL || "/noAvatar.png"
+                          }
+                          alt={reply.createdBy.username || "Anonymous"}
+                          className="w-5 h-5 rounded-full border border-gray-600 object-cover"
+                        />
+                        <div className="bg-gray-700/80 p-2 rounded-lg text-xs max-w-[75%]">
+                          <p className="text-xs">
+                            <Link
+                              href={`/profile/${reply.createdBy._id}`}
+                              className="font-semibold text-white hover:text-blue-300 transition-colors"
+                            >
+                              {reply.createdBy.username}
+                            </Link>
+                            <span className="text-gray-400 ml-1">
                               {reply.comment}
                             </span>
-                          </div>
-                        )}
+                          </p>
+                          <span className="text-[0.6rem] text-gray-500">
+                            {formatTimeAgo(reply.createdAt)}
+                          </span>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="bg-gray-700/80 p-2 rounded-lg text-xs max-w-[75%]">
+                        <p className="text-gray-400">[Deleted User]</p>
+                        <span className="text-gray-500">{reply.comment}</span>
                       </div>
-                    ))}
-                  <input
-                    type="text"
-                    value={replyTexts[comment._id] || ""}
-                    onChange={(e) =>
-                      handleReplyChange(comment._id, e.target.value)
-                    }
-                    placeholder="Reply..."
-                    className="bg-gray-700 text-white p-1 rounded-md text-xs w-full mt-1"
-                  />
-                  <button
-                    onClick={() => submitReply(comment._id)}
-                    className="text-xs text-blue-400"
-                  >
-                    Reply
-                  </button>
-                </div>
-              </div>
+                    )}
+                  </div>
+                ))}
+              <input
+                type="text"
+                value={replyTexts[comment._id] || ""}
+                onChange={(e) =>
+                  handleReplyChange(comment._id, e.target.value)
+                }
+                placeholder="Reply..."
+                className="bg-gray-700 text-white p-1 rounded-md text-xs w-full mt-1"
+              />
+              <button
+                onClick={() => submitReply(comment._id)}
+                className="text-xs text-blue-400"
+              >
+                Reply
+              </button>
             </div>
-          ))
-        ) : (
-          <p className="text-gray-500 text-xs">No comments yet.</p>
-        )}
-      </div>
-    </div>
+          </div>
+        </div>
+      ))
+    ) : (
+      <p className="text-gray-500 text-xs">No comments yet.</p>
+    )}
+  </div>
+</div>
+
   );
 }
