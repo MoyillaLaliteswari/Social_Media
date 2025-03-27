@@ -31,7 +31,7 @@ const ProfileCard = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5 }}
-        className="fixed top-5 right-5 p-5 bg-gray-900 bg-opacity-60 backdrop-blur-lg rounded-lg shadow-lg flex items-center justify-center"
+        className="p-5 bg-gray-900 bg-opacity-60 backdrop-blur-lg rounded-lg shadow-lg flex items-center justify-center"
       >
         <Loader2 className="animate-spin text-blue-400" />
       </motion.div>
@@ -45,12 +45,10 @@ const ProfileCard = () => {
       initial={{ opacity: 0, x: 50 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.5 }}
-      className="fixed top-5 right-5 bg-gray-900 bg-opacity-60 backdrop-blur-lg p-5 rounded-xl shadow-xl w-60 overflow-hidden"
+      className="bg-gray-900 bg-opacity-60 backdrop-blur-lg p-5 rounded-xl shadow-xl w-full overflow-hidden"
     >
       {/* Cover Image */}
-      <div className="relative w-full h-20 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-t-xl">
-       
-      </div>
+      <div className="relative w-full h-20 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-t-xl"></div>
 
       {/* Profile Image */}
       <div className="relative -mt-10 flex justify-center">

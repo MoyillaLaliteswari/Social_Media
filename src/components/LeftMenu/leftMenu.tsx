@@ -6,14 +6,6 @@ import { FaHome, FaSearch, FaBell, FaPlusCircle, FaUser } from 'react-icons/fa';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
 
-interface Story {
-  _id: number;
-  user: string;
-  img: string;
-  media: string;
-  mediaType: 'image' | 'video';
-}
-
 export default function LeftMenu() {
   const router = useRouter();
 
