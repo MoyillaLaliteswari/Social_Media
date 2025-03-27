@@ -6,23 +6,29 @@ connect();
 
 export async function POST(request: NextRequest) {
     try {
-        
-        const reqBody=await request.json();
-        const {token}=reqBody;
-        const user=await User.findOne({
-            forgotPasswordToken:token,
-            forgotPasswordTokenExpiry:{ $gt : Date.now()}
-        })
-        if(!user){
-            return NextResponse.json({error:"Invalid or Expired Token"},{status:400});
-        }
-        user.forgotPasswordToken=undefined;
-        user.forgotPasswordTokenExpiry=undefined;
-        await user.save();
-        return NextResponse.json({
-            message:"Email verified succeefully",success:true
-        },{status:200})
+      const reqBody = await request.json();
+      const {token}=reqBody;
+  
+      const user=await User.findOne({
+          forgotPasswordToken:token,
+          forgotPasswordTokenExpiry:{ $gt: Date.now() }
+      });
+  
+      if(!user){
+          return NextResponse.json({error:"Invalid or Expired Token"},{status:400})
+      }
+  
+      user.forgotPasswordToken=undefined;
+      user.forgotPasswordTokenExpiry=undefined;
+  
+      await user.save();
+  
+      return NextResponse.json({
+          message:"Email verifed successfully", success:true},
+          {status:200}
+      )
+  
     } catch (error:any) {
-        return NextResponse.json({ error: error.message }, { status: 500 });
+      return NextResponse.json({error:error.message},{status:500});
     }
-}
+  }

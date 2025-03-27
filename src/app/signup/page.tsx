@@ -1,116 +1,133 @@
 "use client";
+
 import Link from "next/link";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import toast from "react-hot-toast";
+import { motion } from "framer-motion";
+import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
 
 export default function SignUpPage() {
-    const [user, setUser] = React.useState({
-        email: "",
-        password: "",
-        username: "",
-    });
-    const [buttonDisabled, setButtonDisabled] = React.useState(false);
-    const router = useRouter();
-    const [loading, setLoading] = React.useState(false);
+  const router = useRouter();
+  const [user, setUser] = useState({ email: "", password: "", username: "" });
+  const [showPassword, setShowPassword] = useState(false);
+  const [buttonDisabled, setButtonDisabled] = useState(true);
+  const [loading, setLoading] = useState(false);
 
-    const onSignUp = async () => {
-        try {
-            setLoading(true);
-            const response = await axios.post("/api/users/signup", user);
-            toast.success("Signup successful!");
-            // router.push("/login");
-        } catch (error: any) {
-            toast.error(error.response?.data?.error || "Signup failed!");
-        } finally {
-            setLoading(false);
-        }
-    };
+  useEffect(() => {
+    setButtonDisabled(!(user.email && user.password.length > 5 && user.username));
+  }, [user]);
 
-    useEffect(() => {
-        setButtonDisabled(
-            !(user.email.length > 0 && user.password.length > 0 && user.username.length > 0)
-        );
-    }, [user]);
+  const onSignUp = async () => {
+    setLoading(true);
+    try {
+      await axios.post("/api/users/signup", user);
+      toast.success("Verify email sent! Check your inbox.", { duration: 6000 });
+      toast.success("Account created successfully! Please verify to log in.", { duration: 6000 });
+      router.push("/login");
+    } catch (error: any) {
+      console.log(error);
+      toast.error(error.response?.data?.message || "Try signing up with a unique username and email");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 relative overflow-hidden">
-            {/* Enhanced Background Animation */}
-            <div className="absolute inset-0 z-0 overflow-hidden">
-                <div className="absolute w-[800px] h-[800px] bg-gradient-to-r from-purple-300 to-pink-300 opacity-30 rounded-full filter blur-3xl animate-spin-slow top-0 left-0"></div>
-                <div className="absolute w-[600px] h-[600px] bg-gradient-to-r from-indigo-300 to-purple-300 opacity-30 rounded-full filter blur-2xl animate-pulse-slow bottom-10 right-10"></div>
-                <div className="absolute w-[500px] h-[500px] bg-gradient-to-r from-blue-300 to-indigo-300 opacity-30 rounded-full filter blur-2xl animate-float top-20 right-20"></div>
-            </div>
-            
-            <div className="bg-white shadow-xl rounded-lg p-8 z-10 max-w-md w-full relative">
-                <h1 className="text-3xl font-bold text-center text-gray-800 mb-6">
-                    {loading ? "Processing..." : "Sign Up"}
-                </h1>
-                
-                <div className="mb-4">
-                    <label htmlFor="username" className="block text-sm font-medium text-gray-700">
-                        User Name
-                    </label>
-                    <input
-                        id="username"
-                        type="text"
-                        value={user.username}
-                        onChange={(e) => setUser({ ...user, username: e.target.value })}
-                        placeholder="Enter your username"
-                        className="w-full p-2 mt-1 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
-                    />
-                </div>
+  return (
+    <div className="h-screen flex items-center justify-center relative bg-darkBlue">
+      {/* Background Gradient */}
+      <div className="absolute inset-0 bg-gradient-to-br from-[#001F3F] via-[#011B33] to-[#000A1F]"></div>
 
-                <div className="mb-4">
-                    <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                        Email
-                    </label>
-                    <input
-                        id="email"
-                        type="email"
-                        value={user.email}
-                        onChange={(e) => setUser({ ...user, email: e.target.value })}
-                        placeholder="Enter your email"
-                        className="w-full p-2 mt-1 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
-                    />
-                </div>
+      {/* Glassmorphic Card */}
+      <motion.div
+        initial={{ scale: 0.9, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ duration: 0.8 }}
+        className="relative w-full max-w-lg p-8 bg-white/10 backdrop-blur-2xl rounded-2xl shadow-2xl border border-white/20"
+      >
+        {/* Signup Form */}
+        <motion.div
+          initial={{ scale: 0.9, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 0.8 }}
+          className="flex flex-col items-center"
+        >
+          <div className="text-center">
+            <h1 className="text-2xl font-extrabold text-white">Join Us 🎉</h1>
+            <p className="text-gray-400 mt-1">Create an account to explore more!</p>
+          </div>
 
-                <div className="mb-6">
-                    <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                        Password
-                    </label>
-                    <input
-                        id="password"
-                        type="password"
-                        value={user.password}
-                        onChange={(e) => setUser({ ...user, password: e.target.value })}
-                        placeholder="Enter your password"
-                        className="w-full p-2 mt-1 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
-                    />
-                </div>
+          <div className="w-full mt-6">
+            <div className="max-w-xs mx-auto flex flex-col gap-4 text-white">
+              {/* Username Input */}
+              <input
+                className="w-full px-4 py-3 rounded-md bg-white/10 border border-white/30 placeholder-gray-400 text-white focus:ring-2 focus:ring-white/50 focus:outline-none transition duration-300"
+                type="text"
+                placeholder="Enter your username"
+                onChange={(e) => setUser({ ...user, username: e.target.value })}
+              />
 
-                <button
-                    onClick={onSignUp}
-                    disabled={buttonDisabled || loading}
-                    className={`w-full py-2 text-white rounded-md transition-all ${
-                        buttonDisabled
-                            ? "bg-gray-400 cursor-not-allowed"
-                            : "bg-indigo-600 hover:bg-indigo-700"
-                    }`}
+              {/* Email Input */}
+              <input
+                className="w-full px-4 py-3 rounded-md bg-white/10 border border-white/30 placeholder-gray-400 text-white focus:ring-2 focus:ring-white/50 focus:outline-none transition duration-300"
+                type="email"
+                placeholder="Enter your email"
+                onChange={(e) => setUser({ ...user, email: e.target.value })}
+              />
+
+              {/* Password Input */}
+              <div className="relative w-full">
+                <input
+                  className="w-full px-4 py-3 rounded-md bg-white/10 border border-white/30 placeholder-gray-400 text-white focus:ring-2 focus:ring-white/50 focus:outline-none transition duration-300"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Enter your password"
+                  onChange={(e) => setUser({ ...user, password: e.target.value })}
+                />
+                <span
+                  className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 cursor-pointer transition duration-300 hover:text-white"
+                  onClick={() => setShowPassword(!showPassword)}
                 >
-                    {loading ? "Processing..." : "Sign Up"}
-                </button>
+                  {showPassword ? <AiFillEye size={20} /> : <AiFillEyeInvisible size={20} />}
+                </span>
+              </div>
 
-                <div className="text-center mt-4">
+              {/* Signup Button */}
+              <button
+                className={`mt-5 tracking-wide font-semibold w-full py-3 rounded-md transition-all duration-300 flex items-center justify-center ${
+                  buttonDisabled || loading
+                    ? "bg-gray-500 cursor-not-allowed"
+                    : "bg-gradient-to-r from-[#003B6F] to-[#0066CC] hover:from-[#004F8E] hover:to-[#007BFF] text-white"
+                }`}
+                disabled={buttonDisabled || loading}
+                onClick={(e) => {
+                  e.preventDefault();
+                  if (!buttonDisabled && !loading) onSignUp();
+                }}
+              >
+                {loading ? (
+                  <motion.div
+                    className="w-5 h-5 border-4 border-t-4 border-white rounded-full animate-spin"
+                    initial={{ rotate: 0 }}
+                    animate={{ rotate: 360 }}
+                    transition={{ repeat: Infinity, duration: 0.8 }}
+                  ></motion.div>
+                ) : (
+                  <span>Sign Up</span>
+                )}
+              </button>
+
+              {/* Links */}
+              <p className="mt-4 text-xs text-gray-400 text-center">
+                Already have an account?{" "}
                 <Link href="/login">
-    <span className="text-indigo-600 hover:underline">
-        Already have an account? Login
-    </span>
-</Link>
-
-                </div>
+                  <span className="text-white font-semibold cursor-pointer hover:underline">Log In</span>
+                </Link>
+              </p>
             </div>
-        </div>
-    );
+          </div>
+        </motion.div>
+      </motion.div>
+    </div>
+  );
 }

@@ -6,57 +6,38 @@ import sendEmail  from "@/src/helpers/mailer";
 
 connect();
 
-export async function POST(request: NextRequest) {
+export async function POST(request:NextRequest) {
     try {
-        const reqBody = await request.json();
-        const { username, email, password } = reqBody;
-        console.log("Request Body:", reqBody);
+        const reqBody=await request.json();
+        const {username,email,password}=reqBody;
 
-        if (!username || !email || !password) {
-            return NextResponse.json(
-                { error: "All fields are required" },
-                { status: 400 }
-            );
+        const user=await User.findOne({email});
+
+        if(user){
+            return NextResponse.json({message:"User already exists"},
+                {status:400})
         }
 
-        const user = await User.findOne({ email });
-        if (user) {
-            return NextResponse.json(
-                { error: "User already exists" },
-                { status: 400 }
-            );
-        }
-
-        const salt = await bcryptjs.genSalt(10);
-        const hashedPassword = await bcryptjs.hash(password, salt);
-
-        const newUser = new User({
+        const salt=await bcryptjs.genSalt(10);
+        const hashedPassword=await bcryptjs.hash(password,salt);
+        const newUser=new User({
             username,
             email,
-            password: hashedPassword,
+            password:hashedPassword
         });
+        const savedUser=await newUser.save();
+        console.log(savedUser)
 
-        const savedUser = await newUser.save();
-        console.log("User Saved:", savedUser);
-        
-        
-        await sendEmail({email,emailType:"VERIFY",
-            userId:savedUser._id
-        })
 
+        await sendEmail({email,emailType:"VERIFY",userId:savedUser._id});
         
 
-        return NextResponse.json({
-            message: "User created successfully",
-            success: true,
-        });
-
-    } catch (error: any) {
-        console.error("Server Error:", error.message);
         return NextResponse.json(
-            { error: error.message || "Server error" },
-            { status: 500 }
-        );
+            {message:"User created Successfully",success:true,savedUser},
+            {status:201},
+        ) 
+    } catch (error:any) {
+        return NextResponse.json({error:error.message},
+            {status:500})
     }
 }
-
