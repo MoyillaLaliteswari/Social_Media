@@ -210,211 +210,190 @@ export default function Posts({ post }: PostProps) {
   };
 
   return (
-<div className="bg-gradient-to-br from-gray-900/80 to-gray-800/80 border border-gray-700 rounded-2xl p-4 shadow-lg backdrop-blur-md transition-all duration-300 hover:shadow-xl max-w-md mx-auto">
-  <div className="flex items-center space-x-2 mb-3">
-    <img
-      src={post.createdBy.profileImageURL || "/noAvatar.png"}
-      alt={post.createdBy.username}
-      className="w-8 h-8 rounded-full border border-gray-600 object-cover"
-    />
-    <Link
-      href={`/profile/${post.createdBy._id}`}
-      className="text-white text-sm font-semibold hover:text-blue-300 transition-colors"
-    >
-      {post.createdBy.username}
-    </Link>
-
-    {user === post.createdBy._id && (
-      <button
-        onClick={deletePost}
-        className="text-red-500 hover:text-red-400 transition-all px-60"
-      >
-        <FaTrash className="text-lg" />
-      </button>
-    )}
-  </div>
-
-  <div className="relative mb-3 rounded-lg overflow-hidden">
-    {post.images.map((file, index) => {
-      const isVideo =
-        file.endsWith(".mp4") ||
-        file.endsWith(".mov") ||
-        file.endsWith(".webm");
-      return isVideo ? (
-        <video
-        key={`${post._id}-${index}`} // Unique key based on post ID and index
-          src={file}
-          controls
-          muted
-          onClick={toggleVideo}
-          className="w-full aspect-auto object-contain rounded-lg"
-        />
-      ) : (
-        <img
-        key={`${post._id}-${index}`} // Unique key based on post ID and index
-          src={file}
-          alt={`${post.title}-${file}`}
-          className="w-full aspect-auto object-contain rounded-lg"
-        />
-      );
-    })}
-  </div>
-
-  <p className="text-gray-300 text-xs mt-1 line-clamp-2 leading-relaxed">
-    {post.caption}
-  </p>
-
-  <div className="flex justify-between items-center text-gray-400 mt-3">
-    <div className="flex space-x-3">
-      <button
-        onClick={toggleLike}
-        className="flex items-center space-x-1"
-        disabled={isLiking}
-      >
-        {hasLiked ? (
-          <FaHeart className="text-lg text-red-500 cursor-pointer transition-all animate-pulse" />
-        ) : (
-          <FaRegHeart className="text-lg cursor-pointer hover:text-red-400 transition-colors" />
+    <div className="bg-black border border-gray-700 rounded-lg p-4 shadow-md w-full max-w-md sm:max-w-sm mx-auto transition-all">
+      {/* Post Header */}
+      <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center space-x-2">
+          <img
+            src={post.createdBy.profileImageURL || "/noAvatar.png"}
+            alt={post.createdBy.username}
+            className="w-9 h-9 rounded-full border border-gray-600 object-cover"
+          />
+          <Link
+            href={`/profile/${post.createdBy._id}`}
+            className="text-white text-sm font-semibold hover:text-gray-300"
+          >
+            {post.createdBy.username}
+          </Link>
+        </div>
+        {user === post.createdBy._id && (
+          <button onClick={deletePost} className="text-gray-400 hover:text-red-500">
+            <FaTrash className="text-lg" />
+          </button>
         )}
-        <span className="text-white text-xs">{postLikes}</span>
-      </button>
-      <FaComment className="text-lg cursor-pointer hover:text-blue-300 transition-colors" />
-    </div>
-  </div>
-
-  <div className="mt-3">
-    <form onSubmit={onComment} className="flex items-center space-x-2">
-      <input
-        type="text"
-        value={commentText}
-        onChange={(e) => setCommentText(e.target.value)}
-        placeholder="Add a comment..."
-        className="w-full bg-gray-800/70 text-white p-2 rounded-full border border-gray-600 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400 transition-shadow"
-      />
-      <button
-        type="submit"
-        className="bg-blue-500 text-white px-3 py-1 rounded-full text-xs hover:bg-blue-400 transition-colors"
-        disabled={isCommenting}
-      >
-        Post
-      </button>
-    </form>
-  </div>
-
-  <div className="mt-2 space-y-2 max-h-40 overflow-y-auto sleek-scrollbar">
-    {postComments.length > 0 ? (
-      postComments.map((comment,index) => (
-        <div
-         key={comment._id || `comment-${index}`}
-          className="flex flex-col space-y-2 animate-fade-in"
-        >
-          <div className="flex items-start space-x-2">
-            <img
-              src={comment.createdBy.profileImageURL || "/noAvatar.png"}
-              alt={comment.createdBy.username}
-              className="w-6 h-6 rounded-full border border-gray-600 object-cover"
+      </div>
+  
+      {/* Post Media */}
+      <div className="relative mb-2 overflow-hidden rounded-md">
+        {post.images.map((file, index) => {
+          const isVideo = file.endsWith(".mp4") || file.endsWith(".mov") || file.endsWith(".webm");
+          return isVideo ? (
+            <video
+              key={index}
+              src={file}
+              controls
+              muted
+              onClick={toggleVideo}
+              className="w-full h-auto object-cover rounded-md"
             />
-            <div className="bg-gray-800/80 p-2 rounded-lg text-xs max-w-[80%]">
-              <p className="text-xs">
-                <Link
-                  href={`/profile/${comment.createdBy._id}`}
-                  className="font-semibold text-white hover:text-blue-300 transition-colors"
-                >
-                  {comment.createdBy.username}
-                </Link>
-                <span className="text-gray-400 ml-1">{comment.comment}</span>
-              </p>
-              <span className="text-[0.6rem] text-gray-500">
-                {formatTimeAgo(comment.createdAt)}
-              </span>
-              <div className="flex space-x-3 mt-1">
-                <button
-                  onClick={() => toggleCommentLike(comment._id)}
-                  className="text-xs text-gray-400 flex items-center space-x-1"
-                >
-                  <FaRegHeart />
-                  <span>{comment.likes}</span>
-                </button>
-                <button
-                  onClick={() => toggleReplies(comment._id)}
-                  className="text-xs text-blue-400 flex items-center space-x-1"
-                >
-                  <FaReply />
-                  <span>Replies</span>
-                </button>
-
-                {/* Delete Comment Button */}
-                {user === comment.createdBy._id && (
-                  <button
-                    onClick={() => deleteComment(comment._id)}
-                    className="text-red-500 hover:text-red-400 transition-all"
-                  >
-                    <FaTrash className="text-xs" />
-                  </button>
-                )}
-              </div>
-
-              {showReplies[comment._id] &&
-                comment.replies?.map((reply: any, index: number) => (
-                  <div key={reply._id || `reply-${index}`} className="ml-4 mt-2 flex items-start space-x-2">                
-                    {reply.createdBy ? (
-                      <>
-                        <img
-                          src={
-                            reply.createdBy.profileImageURL || "/noAvatar.png"
-                          }
-                          alt={reply.createdBy.username || "Anonymous"}
-                          className="w-5 h-5 rounded-full border border-gray-600 object-cover"
-                        />
-                        <div className="bg-gray-700/80 p-2 rounded-lg text-xs max-w-[75%]">
-                          <p className="text-xs">
-                            <Link
-                              href={`/profile/${reply.createdBy._id}`}
-                              className="font-semibold text-white hover:text-blue-300 transition-colors"
-                            >
-                              {reply.createdBy.username}
-                            </Link>
-                            <span className="text-gray-400 ml-1">
-                              {reply.comment}
-                            </span>
-                          </p>
-                          <span className="text-[0.6rem] text-gray-500">
-                            {formatTimeAgo(reply.createdAt)}
-                          </span>
-                        </div>
-                      </>
-                    ) : (
-                      <div className="bg-gray-700/80 p-2 rounded-lg text-xs max-w-[75%]">
-                        <p className="text-gray-400">[Deleted User]</p>
-                        <span className="text-gray-500">{reply.comment}</span>
-                      </div>
+          ) : (
+            <img
+              key={index}
+              src={file}
+              alt={post.title}
+              className="w-full h-auto object-cover rounded-md"
+            />
+          );
+        })}
+      </div>
+  
+      {/* Post Actions */}
+      <div className="flex justify-between items-center text-gray-400 px-2">
+        <div className="flex space-x-4">
+          <button onClick={toggleLike} className="flex items-center space-x-1" disabled={isLiking}>
+            {hasLiked ? (
+              <FaHeart className="text-lg text-red-500 transition-transform scale-110" />
+            ) : (
+              <FaRegHeart className="text-lg hover:text-red-400 transition-colors" />
+            )}
+            <span className="text-white text-xs">{postLikes}</span>
+          </button>
+          <FaComment className="text-lg hover:text-gray-300 cursor-pointer" />
+        </div>
+      </div>
+  
+      {/* Caption */}
+      <p className="text-gray-300 text-sm px-2 mt-1">{post.caption}</p>
+  
+      {/* Comments Section */}
+      <div className="mt-2 max-h-32 overflow-y-auto text-gray-400 text-sm px-2 sleek-scrollbar">
+        {postComments.length > 0 ? (
+          postComments.map((comment, index) => (
+            <div key={comment._id || `comment-${index}`} className="flex flex-col space-y-2">
+              <div className="flex items-start space-x-2">
+                <img
+                  src={comment.createdBy.profileImageURL || "/noAvatar.png"}
+                  alt={comment.createdBy.username}
+                  className="w-6 h-6 rounded-full border border-gray-600 object-cover"
+                />
+                <div className="bg-gray-800/80 p-2 rounded-lg text-xs w-full max-w-[80%]">
+                  <p className="text-xs">
+                    <Link
+                      href={`/profile/${comment.createdBy._id}`}
+                      className="font-semibold text-white hover:text-blue-300 transition-colors"
+                    >
+                      {comment.createdBy.username}
+                    </Link>
+                    <span className="text-gray-400 ml-1">{comment.comment}</span>
+                  </p>
+                  <span className="text-[0.6rem] text-gray-500">
+                    {formatTimeAgo(comment.createdAt)}
+                  </span>
+                  <div className="flex space-x-3 mt-1">
+                    <button
+                      onClick={() => toggleCommentLike(comment._id)}
+                      className="text-xs text-gray-400 flex items-center space-x-1"
+                    >
+                      <FaRegHeart />
+                      <span>{comment.likes}</span>
+                    </button>
+                    <button
+                      onClick={() => toggleReplies(comment._id)}
+                      className="text-xs text-blue-400 flex items-center space-x-1"
+                    >
+                      <FaReply />
+                      <span>Replies</span>
+                    </button>
+  
+                    {user === comment.createdBy._id && (
+                      <button
+                        onClick={() => deleteComment(comment._id)}
+                        className="text-red-500 hover:text-red-400 transition-all"
+                      >
+                        <FaTrash className="text-xs" />
+                      </button>
                     )}
                   </div>
-                ))}
-              <input
-                type="text"
-                value={replyTexts[comment._id] || ""}
-                onChange={(e) =>
-                  handleReplyChange(comment._id, e.target.value)
-                }
-                placeholder="Reply..."
-                className="bg-gray-700 text-white p-1 rounded-md text-xs w-full mt-1"
-              />
-              <button
-                onClick={() => submitReply(comment._id)}
-                className="text-xs text-blue-400"
-              >
-                Reply
-              </button>
+  
+                  {/* Replies Section */}
+                  {showReplies[comment._id] &&
+                    comment.replies?.map((reply: any, index: number) => (
+                      <div key={reply._id || `reply-${index}`} className="ml-4 mt-2 flex items-start space-x-2">
+                        {reply.createdBy ? (
+                          <>
+                            <img
+                              src={reply.createdBy.profileImageURL || "/noAvatar.png"}
+                              alt={reply.createdBy.username || "Anonymous"}
+                              className="w-5 h-5 rounded-full border border-gray-600 object-cover"
+                            />
+                            <div className="bg-gray-700/80 p-2 rounded-lg text-xs w-full max-w-[75%]">
+                              <p className="text-xs">
+                                <Link
+                                  href={`/profile/${reply.createdBy._id}`}
+                                  className="font-semibold text-white hover:text-blue-300 transition-colors"
+                                >
+                                  {reply.createdBy.username}
+                                </Link>
+                                <span className="text-gray-400 ml-1">
+                                  {reply.comment}
+                                </span>
+                              </p>
+                              <span className="text-[0.6rem] text-gray-500">
+                                {formatTimeAgo(reply.createdAt)}
+                              </span>
+                            </div>
+                          </>
+                        ) : (
+                          <div className="bg-gray-700/80 p-2 rounded-lg text-xs w-full max-w-[75%]">
+                            <p className="text-gray-400">[Deleted User]</p>
+                            <span className="text-gray-500">{reply.comment}</span>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  <input
+                    type="text"
+                    value={replyTexts[comment._id] || ""}
+                    onChange={(e) => handleReplyChange(comment._id, e.target.value)}
+                    placeholder="Reply..."
+                    className="bg-gray-700 text-white p-1 rounded-md text-xs w-full mt-1"
+                  />
+                  <button onClick={() => submitReply(comment._id)} className="text-xs text-blue-400">
+                    Reply
+                  </button>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
-      ))
-    ) : (
-      <p className="text-gray-500 text-xs">No comments yet.</p>
-    )}
-  </div>
-</div>
-
+          ))
+        ) : (
+          <p className="text-gray-500 text-xs">No comments yet.</p>
+        )}
+      </div>
+  
+      {/* Add Comment */}
+      <form onSubmit={onComment} className="flex items-center mt-2 px-2">
+        <input
+          type="text"
+          value={commentText}
+          onChange={(e) => setCommentText(e.target.value)}
+          placeholder="Add a comment..."
+          className="w-full bg-gray-800 text-white p-2 rounded-full text-xs"
+        />
+        <button type="submit" className="text-blue-400 text-xs ml-2" disabled={isCommenting}>
+          Post
+        </button>
+      </form>
+    </div>
   );
+   
 }

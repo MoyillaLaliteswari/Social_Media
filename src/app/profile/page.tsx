@@ -5,6 +5,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import FollowModal from "@/src/components/followFeature";
 import LeftMenu from "@/src/components/LeftMenu/leftMenu";
+import { FaBars, FaTimes } from "react-icons/fa";
 
 interface User {
   _id: string;
@@ -48,6 +49,7 @@ const UserProfile = () => {
   );
   const [isEditingBio, setIsEditingBio] = useState(false);
   const [newBio, setNewBio] = useState("");
+  const [showLeftMenu, setShowLeftMenu] = useState(false);
 
   useEffect(() => {
     const fetchMyId = async () => {
@@ -156,7 +158,29 @@ const UserProfile = () => {
 
   return (
       <div className="flex flex-col items-center min-h-screen bg-black text-white p-10">
-        <LeftMenu />
+        <button
+                      className="md:hidden fixed top-4 left-4 bg-gray-800 p-2 rounded-full shadow-lg z-50"
+                      onClick={() => setShowLeftMenu(true)}
+                    >
+                      <FaBars size={24} />
+                    </button>
+        
+                    {showLeftMenu && (
+                            <div
+                              className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"
+                              onClick={() => setShowLeftMenu(false)}
+                            />
+                          )}
+                          <div
+                            className={`fixed top-0 left-0 w-64 h-full bg-gray-900 z-50 transform transition-transform ${
+                              showLeftMenu ? 'translate-x-0' : '-translate-x-full'
+                            } md:translate-x-0 md:static md:block`}
+                          >
+                            <button className="md:hidden absolute top-4 right-4" onClick={() => setShowLeftMenu(false)}>
+                              <FaTimes size={24} />
+                            </button>
+                            <LeftMenu showLeftMenu={showLeftMenu} setShowLeftMenu={setShowLeftMenu} />
+                          </div>
         
         {loading ? (
           <p className="text-lg font-semibold animate-pulse">Loading User Profile...</p>

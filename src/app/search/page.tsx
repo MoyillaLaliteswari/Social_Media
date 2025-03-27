@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 import LeftMenu from "@/src/components/LeftMenu/leftMenu";
+import { FaBars, FaTimes } from "react-icons/fa";
 
 interface User {
   id: string;
@@ -18,6 +19,8 @@ export default function SearchPage() {
   const [results, setResults] = useState<User[]>([]);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const [showLeftMenu, setShowLeftMenu] = useState(false);
+  const [showRightMenu, setShowRightMenu] = useState(false);
 
   useEffect(() => {
     if (!query) {
@@ -42,8 +45,34 @@ export default function SearchPage() {
   }, [query]);
 
   return (
+    <div>
+      <div>
+        <button
+          className="md:hidden fixed top-4 left-4 bg-gray-800 p-2 rounded-full shadow-lg z-50"
+          onClick={() => setShowLeftMenu(true)}
+        >
+          <FaBars size={24} />
+        </button>
+
+        {/* Left Sidebar with Backdrop */}
+        {showLeftMenu && (
+          <div
+            className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"
+            onClick={() => setShowLeftMenu(false)}
+          ></div>
+        )}
+        <div
+          className={`fixed top-0 left-0 w-64 h-full bg-gray-900 z-50 transform transition-transform ${
+            showLeftMenu ? 'translate-x-0' : '-translate-x-full'
+          } md:translate-x-0 md:static md:block`}
+        >
+          <button className="md:hidden absolute top-4 right-4" onClick={() => setShowLeftMenu(false)}>
+            <FaTimes size={24} />
+          </button>
+          <LeftMenu showLeftMenu={showLeftMenu} setShowLeftMenu={setShowLeftMenu} />
+        </div>
+      </div>
     <div className="min-h-screen flex flex-col items-center py-20 bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white">
-      <LeftMenu />
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -119,6 +148,7 @@ export default function SearchPage() {
           </motion.div>
         )}
       </AnimatePresence>
+    </div>
     </div>
   );
 }

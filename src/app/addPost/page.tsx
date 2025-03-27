@@ -3,8 +3,10 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import toast from "react-hot-toast";
-import { FaCloudUploadAlt } from "react-icons/fa";
+import { FaBars, FaCloudUploadAlt, FaTimes } from "react-icons/fa";
 import { IoClose } from "react-icons/io5";
+import LeftMenu from "@/src/components/LeftMenu/leftMenu";
+import RightMenu from "@/src/components/RightMenu/rightMenu";
 
 export default function AddPost() {
   const router = useRouter();
@@ -13,6 +15,8 @@ export default function AddPost() {
   const [mediaPreview, setMediaPreview] = useState<string | null>(null);
   const [mediaType, setMediaType] = useState<"image" | "video" | null>(null);
   const [loading, setLoading] = useState(false);
+  const [showLeftMenu, setShowLeftMenu] = useState(false);
+  const [showRightMenu, setShowRightMenu] = useState(false);
 
   const handleMediaUpload = async (): Promise<string | null> => {
     if (!media) {
@@ -75,6 +79,31 @@ export default function AddPost() {
   };
 
   return (
+    <div>
+       <button
+        className="md:hidden fixed top-4 left-4 bg-gray-800 p-2 rounded-full shadow-lg z-50"
+        onClick={() => setShowLeftMenu(true)}
+      >
+        <FaBars size={24} />
+      </button>
+
+      {/* Left Sidebar with Backdrop */}
+      {showLeftMenu && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"
+          onClick={() => setShowLeftMenu(false)}
+        />
+      )}
+      <div
+        className={`fixed top-0 left-0 w-64 h-full bg-gray-900 z-50 transform transition-transform ${
+          showLeftMenu ? 'translate-x-0' : '-translate-x-full'
+        } md:translate-x-0 md:static md:block`}
+      >
+        <button className="md:hidden absolute top-4 right-4" onClick={() => setShowLeftMenu(false)}>
+          <FaTimes size={24} />
+        </button>
+        <LeftMenu showLeftMenu={showLeftMenu} setShowLeftMenu={setShowLeftMenu} />
+      </div>
     <div className="min-h-screen flex justify-center items-center bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 px-4">
       <div className="max-w-md w-full bg-white rounded-2xl shadow-2xl p-6 space-y-6">
         <h2 className="text-2xl font-bold text-center text-gray-900">Create a New Post ✨</h2>
@@ -136,6 +165,8 @@ export default function AddPost() {
           </button>
         </form>
       </div>
+    </div>
+    
     </div>
   );
 }
