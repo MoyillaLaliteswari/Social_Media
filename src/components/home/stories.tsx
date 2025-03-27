@@ -14,46 +14,58 @@ interface StoriesProps {
 }
 
 export default function Stories({ stories }: StoriesProps) {
-  const [selectedStory, setSelectedStory] = useState<Story | null>(null);
+  const [selectedUserStories, setSelectedUserStories] = useState<Story[] | null>(null);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
-  const openStory = (story: Story) => {
-    setSelectedStory(story);
+  const openStory = (userStories: Story[]) => {
+    setSelectedUserStories([...userStories]); // Ensure state updates properly
+    setCurrentIndex(0);
   };
 
   const closeStory = () => {
-    setSelectedStory(null);
+    setSelectedUserStories(null);
   };
 
-  if (!Array.isArray(stories) || stories.length === 0) {
-    return <p className="text-center text-gray-400"></p>;
-  }
+  // Group stories by user
+  const groupedStories: { [key: string]: Story[] } = {};
+  stories.forEach((story) => {
+    if (!groupedStories[story.user]) groupedStories[story.user] = [];
+    groupedStories[story.user].push(story);
+  });
 
   return (
     <>
       <div className="flex space-x-4 overflow-x-auto p-4 scrollbar-hide">
-        {stories.map((story) => (
+        {Object.entries(groupedStories).map(([user, userStories]) => (
           <div
-            key={story._id}
+            key={user}
             className="flex flex-col items-center cursor-pointer hover:scale-105 transition-transform"
-            onClick={() => openStory(story)}
+            onClick={() => openStory(userStories)}
           >
             <div className="w-16 h-16 p-1 rounded-full bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500">
               <div className="w-full h-full bg-white p-[2px] rounded-full flex items-center justify-center">
                 <img
-                  src={story.img}
-                  alt={story.user}
+                  src={userStories[0].img}
+                  alt={user}
                   className="w-full h-full rounded-full object-cover"
                 />
               </div>
             </div>
             <p className="text-xs mt-1 text-gray-400 truncate w-16 text-center">
-              {story.user}
+              {user}
             </p>
           </div>
         ))}
       </div>
 
-      {selectedStory && <StoryModal story={selectedStory} onClose={closeStory} />}
+      {selectedUserStories && (
+        <StoryModal
+          stories={selectedUserStories}
+          currentIndex={currentIndex}
+          setCurrentIndex={setCurrentIndex}
+          onClose={closeStory}
+        />
+      )}
     </>
   );
 }

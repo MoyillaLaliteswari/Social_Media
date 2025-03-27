@@ -19,6 +19,8 @@ export async function GET(request: NextRequest) {
         })
         .populate("author", "username profileImageURL") || []
 
+        console.log(stories);
+
         return NextResponse.json({ 
             stories: stories.map((story: any) => ({
                 _id: story._id,
@@ -28,6 +30,7 @@ export async function GET(request: NextRequest) {
                 mediaType: story.mediaType
             }))
         }, { status: 200 });
+
 
     } catch (error: any) {
         console.error("Error fetching stories:", error);

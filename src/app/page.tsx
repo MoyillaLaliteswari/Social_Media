@@ -38,7 +38,7 @@ interface SuggestedUser {
 
 export default function Home() {
   const [stories, setStories] = useState<Story[]>([]);
-  // const [myStories, setMyStories] = useState<Story[]>([]);
+  const [myStories, setMyStories] = useState<Story[]>([]);
   const [posts, setPosts] = useState<Post[]>([]);
   const [suggested, setSuggested] = useState<SuggestedUser[]>([]);
   const [loading, setLoading] = useState(true);
@@ -46,28 +46,17 @@ export default function Home() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const [postsRes, storiesRes, suggestedRes] = await Promise.all([
+        const [postsRes, storiesRes, myStoryRes, suggestedRes] = await Promise.all([
           axios.get('/api/posts/home'),
           axios.get('/api/stories/following'),
+          axios.get('/api/stories/my'),
           axios.get('/api/suggestions'),
-          // axios.get('/api/stories/my'),
         ]);
 
-        console.log('Posts API Response:', postsRes.data.posts);
-
-        setPosts(
-          Array.isArray(postsRes.data.posts)
-            ? postsRes.data.posts.map((post: any) => ({
-                ...post,
-                likes: Array.isArray(post.likes) ? post.likes : [],
-                comments: Array.isArray(post.comments) ? post.comments : [],
-              }))
-            : []
-        );
-
+        setPosts(Array.isArray(postsRes.data.posts) ? postsRes.data.posts : []);
         setStories(Array.isArray(storiesRes.data.stories) ? storiesRes.data.stories : []);
+        setMyStories(Array.isArray(myStoryRes.data.stories) ? myStoryRes.data.stories : []);
         setSuggested(Array.isArray(suggestedRes.data.suggested) ? suggestedRes.data.suggested : []);
-        // setMyStories(Array.isArray(storiesRes.data.stories) ? myStories.data.stories : []);
       } catch (error) {
         console.error('Error fetching data:', error);
       } finally {
@@ -99,8 +88,12 @@ export default function Home() {
           ) : (
             <>
               <div className="sticky top-0 bg-gray-900 z-10 pb-3 flex px-4 items-center gap-4">
-                <AddStory />
-                {/* <Stories stories={myStories} /> */}
+                {/* Pass only the first story or null */}
+                <AddStory 
+                    myStories={myStories} 
+                    updateStories={(newStory) => setMyStories((prev) => [...prev, newStory])} 
+                />
+
                 <Stories stories={stories} />
               </div>
               <div className="h-[80vh] overflow-y-auto hide-scrollbar space-y-8">

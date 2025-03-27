@@ -4,10 +4,7 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { FaHome, FaSearch, FaBell, FaPlusCircle, FaUser } from 'react-icons/fa';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
 import axios from 'axios';
-import Stories from '@/src/components/home/stories';
-import StoryModal from '@/src/components/home/storyModal';
 
 interface Story {
   _id: number;
@@ -19,22 +16,6 @@ interface Story {
 
 export default function LeftMenu() {
   const router = useRouter();
-  const [stories, setStories] = useState<Story[]>([]);
-  const [selectedStory, setSelectedStory] = useState<Story | null>(null);
-
-  useEffect(() => {
-    const fetchUserStories = async () => {
-      try {
-        const res = await axios.get('/api/stories/my');
-        if (res.status === 200 && Array.isArray(res.data.stories)) {
-          setStories(res.data.stories);
-        }
-      } catch (error) {
-        console.error('Failed to fetch user stories:', error);
-      }
-    };
-    fetchUserStories();
-  }, []);
 
   const menuItems = [
     { href: '/', label: 'Home', icon: <FaHome /> },
@@ -77,8 +58,6 @@ export default function LeftMenu() {
           ))}
         </ul>
 
-        {/* Display User Stories */}
-        {stories.length > 0 && <Stories stories={stories} />}
 
         {/* Logout Button */}
         <button
@@ -88,9 +67,6 @@ export default function LeftMenu() {
           🚪 <span>Logout</span>
         </button>
       </motion.div>
-
-      {/* Story Modal */}
-      {selectedStory && <StoryModal story={selectedStory} onClose={() => setSelectedStory(null)} />}
     </>
   );
 }
