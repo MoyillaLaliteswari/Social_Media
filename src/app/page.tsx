@@ -97,9 +97,9 @@ export default function Home() {
                 <Stories stories={stories} />
               </div>
               <div className="h-[80vh] overflow-y-auto hide-scrollbar space-y-8">
-                {posts.map((post) => (
-                  <Posts key={post._id} post={post} />
-                ))}
+              {posts.map((post, index) => (
+                <Posts key={post._id || index} post={post} />
+              ))}
               </div>
             </>
           )}
