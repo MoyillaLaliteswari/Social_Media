@@ -242,7 +242,7 @@ export default function Posts({ post }: PostProps) {
         file.endsWith(".webm");
       return isVideo ? (
         <video
-          key={index}
+        key={`${post._id}-${index}`} // Unique key based on post ID and index
           src={file}
           controls
           muted
@@ -251,9 +251,9 @@ export default function Posts({ post }: PostProps) {
         />
       ) : (
         <img
-          key={index}
+        key={`${post._id}-${index}`} // Unique key based on post ID and index
           src={file}
-          alt={`${post.title}-${index}`}
+          alt={`${post.title}-${file}`}
           className="w-full aspect-auto object-contain rounded-lg"
         />
       );
@@ -303,9 +303,9 @@ export default function Posts({ post }: PostProps) {
 
   <div className="mt-2 space-y-2 max-h-40 overflow-y-auto sleek-scrollbar">
     {postComments.length > 0 ? (
-      postComments.map((comment) => (
+      postComments.map((comment,index) => (
         <div
-          key={comment._id}
+         key={comment._id || `comment-${index}`}
           className="flex flex-col space-y-2 animate-fade-in"
         >
           <div className="flex items-start space-x-2">
@@ -355,11 +355,8 @@ export default function Posts({ post }: PostProps) {
               </div>
 
               {showReplies[comment._id] &&
-                comment.replies?.map((reply: any) => (
-                  <div
-                    key={reply._id}
-                    className="ml-4 mt-2 flex items-start space-x-2"
-                  >
+                comment.replies?.map((reply: any, index: number) => (
+                  <div key={reply._id || `reply-${index}`} className="ml-4 mt-2 flex items-start space-x-2">                
                     {reply.createdBy ? (
                       <>
                         <img
