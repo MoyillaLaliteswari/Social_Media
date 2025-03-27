@@ -20,7 +20,6 @@ export default function SearchPage() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const [showLeftMenu, setShowLeftMenu] = useState(false);
-  const [showRightMenu, setShowRightMenu] = useState(false);
 
   useEffect(() => {
     if (!query) {

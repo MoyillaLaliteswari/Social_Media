@@ -157,36 +157,41 @@ const UserProfile = () => {
 
 
   return (
-      <div className="flex flex-col items-center min-h-screen bg-black text-white p-10">
+    <div className="flex min-h-screen bg-black text-white">
+      {/* Left Sidebar */}
+      <div
+        className={`fixed top-0 left-0 w-64 h-full bg-gray-900 z-50 transform transition-transform ${
+          showLeftMenu ? 'translate-x-0' : '-translate-x-full'
+        } md:translate-x-0 md:static md:block`}
+      >
+        <button className="md:hidden absolute top-4 right-4" onClick={() => setShowLeftMenu(false)}>
+          <FaTimes size={24} />
+        </button>
+        <LeftMenu showLeftMenu={showLeftMenu} setShowLeftMenu={setShowLeftMenu} />
+      </div>
+  
+      {/* Overlay for Mobile */}
+      {showLeftMenu && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"
+          onClick={() => setShowLeftMenu(false)}
+        />
+      )}
+  
+      {/* Main Content */}
+      <div className="flex flex-col items-center w-full p-10">
+        {/* Mobile Menu Button */}
         <button
-                      className="md:hidden fixed top-4 left-4 bg-gray-800 p-2 rounded-full shadow-lg z-50"
-                      onClick={() => setShowLeftMenu(true)}
-                    >
-                      <FaBars size={24} />
-                    </button>
-        
-                    {showLeftMenu && (
-                            <div
-                              className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"
-                              onClick={() => setShowLeftMenu(false)}
-                            />
-                          )}
-                          <div
-                            className={`fixed top-0 left-0 w-64 h-full bg-gray-900 z-50 transform transition-transform ${
-                              showLeftMenu ? 'translate-x-0' : '-translate-x-full'
-                            } md:translate-x-0 md:static md:block`}
-                          >
-                            <button className="md:hidden absolute top-4 right-4" onClick={() => setShowLeftMenu(false)}>
-                              <FaTimes size={24} />
-                            </button>
-                            <LeftMenu showLeftMenu={showLeftMenu} setShowLeftMenu={setShowLeftMenu} />
-                          </div>
-        
+          className="md:hidden fixed top-4 left-4 bg-gray-800 p-2 rounded-full shadow-lg z-50"
+          onClick={() => setShowLeftMenu(true)}
+        >
+          <FaBars size={24} />
+        </button>
+  
         {loading ? (
           <p className="text-lg font-semibold animate-pulse">Loading User Profile...</p>
         ) : profile ? (
           <div className="max-w-3xl w-full bg-gray-800 bg-opacity-95 shadow-2xl rounded-3xl p-8 flex flex-col items-center backdrop-blur-md border border-gray-700">
-            
             {/* Profile Image */}
             <div className="relative group">
               <img
@@ -208,11 +213,11 @@ const UserProfile = () => {
                 {uploading ? "⏳" : "📸"}
               </label>
             </div>
-    
+  
             {/* Profile Details */}
             <h1 className="text-3xl font-bold mt-4 text-white">{profile.username}</h1>
             <h2 className="text-gray-400">{profile.email}</h2>
-    
+  
             {/* Bio Section */}
             <div className="mt-4 w-full flex flex-col items-center">
               {isEditingBio ? (
@@ -231,7 +236,7 @@ const UserProfile = () => {
                 {isEditingBio ? "Save Bio" : "Edit Bio"}
               </button>
             </div>
-    
+  
             {/* Stats Section */}
             <div className="flex justify-around w-full mt-6 gap-6">
               <div
@@ -253,7 +258,7 @@ const UserProfile = () => {
                 <p className="text-gray-300">Posts</p>
               </div>
             </div>
-    
+  
             {/* Modals */}
             {followersOpen && (
               <FollowModal title="Followers" list={followerList} onClose={() => setFollowersOpen(false)} />
@@ -261,12 +266,12 @@ const UserProfile = () => {
             {followingOpen && (
               <FollowModal title="Following" list={followingList} onClose={() => setFollowingOpen(false)} />
             )}
-    
+  
             {/* View All Posts Link */}
             <Link href={`/userPosts/${myId?._id}`} className="mt-6 text-purple-400 hover:underline text-lg font-medium">
               View all posts
             </Link>
-    
+  
             {/* Recent Posts Section */}
             <div className="mt-6 w-full">
               <h2 className="text-2xl font-semibold mb-4 text-white">Recent Posts</h2>
@@ -275,11 +280,11 @@ const UserProfile = () => {
                   {recentPosts.slice(0, 4).map((post) => (
                     <Link key={post._id} href={`/post/${post._id}`}>
                       <div className="bg-gray-700 p-4 rounded-xl shadow-lg hover:shadow-2xl transition duration-300 cursor-pointer">
-                      <img
-                        src={post.images.length > 0 ? (isVideo(post.images[0]) ? "/videos.png" : post.images[0]) : "/default.png"}
-                        alt="Post"
-                        className="w-full h-40 object-cover rounded-md transform hover:scale-105 transition duration-300"
-                      />
+                        <img
+                          src={post.images.length > 0 ? (isVideo(post.images[0]) ? "/videos.png" : post.images[0]) : "/default.png"}
+                          alt="Post"
+                          className="w-full h-40 object-cover rounded-md transform hover:scale-105 transition duration-300"
+                        />
                         <h1 className="text-lg font-semibold mt-2 text-white">{post.title}</h1>
                         <p className="text-gray-400 text-sm">{post.caption}</p>
                       </div>
@@ -295,7 +300,9 @@ const UserProfile = () => {
           <p className="text-red-500">{error}</p>
         )}
       </div>
-    );
+    </div>
+  );
+  
     
 };
 
