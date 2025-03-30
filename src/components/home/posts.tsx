@@ -336,7 +336,7 @@ export default function Posts({ post }: PostProps) {
   
                   {/* Replies Section */}
                   {showReplies[comment._id] &&
-                    comment.replies?.map((reply: any, index: number) => (
+                    comment.replies?.map((reply: { _id: string; comment: string; createdBy?: { _id: string; username: string; profileImageURL: string }; createdAt: string }, index: number) => (
                       <div key={reply._id || `reply-${index}`} className="ml-4 mt-2 flex items-start space-x-2">
                         {reply.createdBy ? (
                           <>
