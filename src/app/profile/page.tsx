@@ -160,19 +160,24 @@ const UserProfile = () => {
 
 
   return (
-    <div className="flex flex-col md:flex-row min-h-screen bg-black text-white">
-      {/* Left Sidebar */}
+    <div className="flex min-h-screen bg-black text-white">
+      {/* Left Sidebar - Fixed on Laptop Screens */}
+      <div className="hidden md:block fixed top-0 left-0 w-64 h-full bg-gray-900 z-50">
+        <LeftMenu showLeftMenu={true} setShowLeftMenu={setShowLeftMenu} />
+      </div>
+
+      {/* Mobile Sidebar - Toggle on Button Click */}
       <div
         className={`fixed top-0 left-0 w-64 h-full bg-gray-900 z-50 transform transition-transform ${
           showLeftMenu ? "translate-x-0" : "-translate-x-full"
-        } md:translate-x-0 md:static`}
+        } md:hidden`}
       >
-        <button className="md:hidden absolute top-4 right-4" onClick={() => setShowLeftMenu(false)}>
+        <button className="absolute top-4 right-4" onClick={() => setShowLeftMenu(false)}>
           <FaTimes size={24} />
         </button>
         <LeftMenu showLeftMenu={showLeftMenu} setShowLeftMenu={setShowLeftMenu} />
       </div>
-  
+
       {/* Overlay for Mobile */}
       {showLeftMenu && (
         <div
@@ -180,9 +185,9 @@ const UserProfile = () => {
           onClick={() => setShowLeftMenu(false)}
         />
       )}
-  
+
       {/* Main Content */}
-      <div className="flex flex-col items-center w-full px-6 py-8 md:p-10">
+      <div className="flex-1 flex flex-col items-center w-full px-6 py-8 md:p-10 md:ml-64">
         {/* Mobile Menu Button */}
         <button
           className="md:hidden fixed top-4 left-4 bg-gray-800 p-2 rounded-full shadow-lg z-50"
@@ -190,7 +195,7 @@ const UserProfile = () => {
         >
           <FaBars size={24} />
         </button>
-  
+
         {loading ? (
           <p className="text-lg font-semibold animate-pulse">Loading User Profile...</p>
         ) : profile ? (
@@ -198,48 +203,21 @@ const UserProfile = () => {
             {/* Profile Image */}
             <div className="relative group w-32 h-32 sm:w-40 sm:h-40">
               <img
-                src={typeof imagePreview === "string" ? imagePreview : profile.profileImageURL}
+                src={profile.profileImageURL}
                 alt="Profile"
                 className="w-full h-full rounded-full object-cover border-4 border-blue-500 shadow-xl"
               />
-              <label
-                htmlFor="imageUpload"
-                className="absolute bottom-1 right-1 bg-gradient-to-r from-blue-500 to-purple-600 text-white p-2 rounded-full cursor-pointer shadow-md"
-              >
-                <input
-                  type="file"
-                  id="imageUpload"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={handleImageUpload}
-                />
-                {uploading ? "⏳" : "📸"}
-              </label>
             </div>
-  
+
             {/* Profile Details */}
             <h1 className="text-2xl sm:text-3xl font-bold mt-4">{profile.username}</h1>
             <h2 className="text-gray-400 text-center">{profile.email}</h2>
-  
+
             {/* Bio Section */}
             <div className="mt-4 w-full flex flex-col items-center text-center">
-              {isEditingBio ? (
-                <textarea
-                  value={newBio}
-                  onChange={(e) => setNewBio(e.target.value)}
-                  className="w-full p-3 border-2 rounded-lg bg-gray-700 shadow-md focus:outline-none focus:ring-4 focus:ring-blue-400"
-                />
-              ) : (
-                <p className="text-base text-gray-300">{profile.bio}</p>
-              )}
-              <button
-                onClick={handleBioChange}
-                className="mt-3 px-6 py-2 bg-blue-600 text-white rounded-full shadow-md hover:scale-105 hover:bg-blue-500 transition"
-              >
-                {isEditingBio ? "Save Bio" : "Edit Bio"}
-              </button>
+              <p className="text-base text-gray-300">{profile.bio}</p>
             </div>
-  
+
             {/* Stats Section */}
             <div className="flex flex-wrap justify-center gap-4 mt-6 w-full">
               <div
@@ -261,7 +239,7 @@ const UserProfile = () => {
                 <p className="text-gray-300 text-sm">Posts</p>
               </div>
             </div>
-  
+
             {/* Modals */}
             {followersOpen && (
               <FollowModal title="Followers" list={followerList} onClose={() => setFollowersOpen(false)} />
@@ -269,33 +247,39 @@ const UserProfile = () => {
             {followingOpen && (
               <FollowModal title="Following" list={followingList} onClose={() => setFollowingOpen(false)} />
             )}
-  
+
             {/* View All Posts Link */}
             <Link href={`/userPosts/${myId?._id}`} className="mt-6 text-purple-400 hover:underline text-lg font-medium">
               View all posts
             </Link>
-  
+
             {/* Recent Posts Section */}
             <div className="mt-6 w-full">
-              <h2 className="text-xl sm:text-2xl font-semibold mb-4">Recent Posts</h2>
+              <h2 className="text-2xl font-semibold mb-4 text-white">Recent Posts</h2>
               {recentPosts.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {recentPosts.slice(0, 4).map((post) => (
                     <Link key={post._id} href={`/post/${post._id}`}>
-                      <div className="bg-gray-700 p-4 rounded-xl shadow-md hover:shadow-lg transition duration-300 cursor-pointer">
+                      <div className="bg-gray-700 p-4 rounded-xl shadow-lg hover:shadow-2xl transition duration-300 cursor-pointer">
                         <img
-                          src={post.images.length > 0 ? (isVideo(post.images[0]) ? "/videos.png" : post.images[0]) : "/default.png"}
+                          src={
+                            post.images.length > 0
+                              ? isVideo(post.images[0])
+                                ? "/addVideo.png"
+                                : post.images[0]
+                              : "/default.png"
+                          }
                           alt="Post"
-                          className="w-full h-32 sm:h-40 object-cover rounded-md transform hover:scale-105 transition duration-300"
+                          className="w-full h-40 object-cover rounded-md transform hover:scale-105 transition duration-300"
                         />
-                        <h1 className="text-lg font-semibold mt-2">{post.title}</h1>
+                        <h1 className="text-lg font-semibold mt-2 text-white">{post.title}</h1>
                         <p className="text-gray-400 text-sm">{post.caption}</p>
                       </div>
                     </Link>
                   ))}
                 </div>
               ) : (
-                <p className="text-gray-400 text-center">No posts available</p>
+                <p className="text-gray-400">No posts available</p>
               )}
             </div>
           </div>
@@ -305,9 +289,6 @@ const UserProfile = () => {
       </div>
     </div>
   );
-  
-  
-    
 };
 
 export default UserProfile;

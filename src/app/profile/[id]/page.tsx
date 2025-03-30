@@ -180,19 +180,24 @@ const UserProfile = () => {
 
   return (
     <div className="flex min-h-screen bg-black text-white">
-      {/* Left Sidebar */}
+      {/* Left Sidebar - Fixed for Laptop Screens */}
+      <div className="hidden md:block md:w-64 fixed top-0 left-0 h-screen bg-gray-900 z-50">
+        <LeftMenu showLeftMenu={true} setShowLeftMenu={setShowLeftMenu} />
+      </div>
+
+      {/* Mobile Left Menu */}
       <div
         className={`fixed top-0 left-0 w-64 h-full bg-gray-900 z-50 transform transition-transform ${
           showLeftMenu ? "translate-x-0" : "-translate-x-full"
-        } md:translate-x-0 md:static md:block`}
+        } md:hidden`}
       >
-        <button className="md:hidden absolute top-4 right-4" onClick={() => setShowLeftMenu(false)}>
+        <button className="absolute top-4 right-4" onClick={() => setShowLeftMenu(false)}>
           <FaTimes size={24} />
         </button>
         <LeftMenu showLeftMenu={showLeftMenu} setShowLeftMenu={setShowLeftMenu} />
       </div>
 
-      {/* Backdrop for mobile */}
+      {/* Mobile Backdrop */}
       {showLeftMenu && (
         <div
           className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"
@@ -201,7 +206,8 @@ const UserProfile = () => {
       )}
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col items-center p-10 md:pl-64">
+      <div className="flex-1 flex flex-col items-center p-10 md:ml-64">
+        {/* Mobile Menu Toggle Button */}
         <button
           className="md:hidden fixed top-4 left-4 bg-gray-800 p-2 rounded-full shadow-lg z-50"
           onClick={() => setShowLeftMenu(true)}
@@ -209,6 +215,7 @@ const UserProfile = () => {
           <FaBars size={24} />
         </button>
 
+        {/* Profile Info */}
         {loading ? (
           <p className="text-lg font-semibold animate-pulse">Loading User Profile...</p>
         ) : profile ? (
@@ -238,6 +245,7 @@ const UserProfile = () => {
               </button>
             )}
 
+            {/* Stats Section */}
             <div className="flex justify-around w-full mt-6">
               <div
                 className="text-center cursor-pointer p-4 bg-purple-700 rounded-lg shadow-md hover:bg-purple-600 transition duration-300"
@@ -266,10 +274,12 @@ const UserProfile = () => {
               <FollowModal title="Following" list={followingList} onClose={() => setFollowingOpen(false)} />
             )}
 
+            {/* View All Posts */}
             <Link href={`/userPosts/${userId}`} className="mt-6 text-purple-400 hover:underline text-lg font-medium">
               View all posts
             </Link>
 
+            {/* Recent Posts */}
             <div className="mt-6 w-full">
               <h2 className="text-2xl font-semibold mb-4 text-white">Recent Posts</h2>
               {recentPosts.length > 0 ? (
