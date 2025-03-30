@@ -23,11 +23,11 @@ export default function Posts({ post }: PostProps) {
   const [postLikes, setPostLikes] = useState(0);
   const [hasLiked, setHasLiked] = useState(false);
   const [commentText, setCommentText] = useState("");
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<string | null>(null);
   const [postComments, setPostComments] = useState<any[]>([]);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [isLiking, setIsLiking] = useState(false);
-  const [isCommenting, setIsCommenting] = useState(false);
+  const [isLiking] = useState(false);
+  const [isCommenting] = useState(false);
   const [replyTexts, setReplyTexts] = useState<{ [key: string]: string }>({});
   const [showReplies, setShowReplies] = useState<{ [key: string]: boolean }>(
     {}
@@ -177,7 +177,7 @@ export default function Posts({ post }: PostProps) {
     }
   };
 
-  const deleteComment=async(commentId:any)=>{
+  const deleteComment=async(commentId: string)=>{
     if (!window.confirm("Are you sure you want to delete this comment?")) return;
     try {
       const del=await axios.delete(`api/commentDelete/${commentId}`)

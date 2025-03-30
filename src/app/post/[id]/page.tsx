@@ -18,8 +18,8 @@ interface Post {
     email: string;
     profileImageURL: string;
   };
-  likes: any[];
-  comments: any[];
+  likes: [];
+  comments: [];
 }
 
 function UniquePost() {
@@ -108,7 +108,7 @@ function UniquePost() {
 
       {/* Main Content */}
       <div className="flex-grow flex flex-col items-center w-full p-6 md:ml-64 md:mr-72">
-        <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-4">{username}'s Post</h1>
+        <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-4">{username}&apos;s Post</h1>
         <div className="w-full max-w-3xl space-y-6">
           {loading ? (
             <div className="space-y-4">

@@ -2,7 +2,7 @@ import nodemailer from "nodemailer";
 import User from "@/src/models/userModel";
 import bcryptjs from "bcryptjs";
 
-export default async function sendEmail({ email, emailType, userId }: any) {
+export default async function sendEmail({ email, emailType, userId }: { email: string; emailType: string; userId: string }) {
   try {
     let hashedToken = await bcryptjs.hash(userId.toString(), 10);
     let hashedEmail = await bcryptjs.hash(email, 10);
@@ -162,7 +162,11 @@ export default async function sendEmail({ email, emailType, userId }: any) {
 
     const mailResponse = await transport.sendMail(mailOptions);
     return mailResponse;
-  } catch (error: any) {
-    throw new Error(error.message);
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    } else {
+      throw new Error(String(error));
+    }
   }
 }

@@ -62,8 +62,12 @@ const UserProfile = () => {
         setFollowingCount(userData.following.length || 0);
         setLoading(false);
         return userData;
-      } catch (error: any) {
-        setError(error.response?.data?.message || "Error fetching user data.");
+      } catch (error) {
+        if (axios.isAxiosError(error) && error.response?.data?.message) {
+          setError(error.response.data.message);
+        } else {
+          setError("Error fetching user data.");
+        }
         setLoading(false);
         return null;
       }
@@ -77,7 +81,7 @@ const UserProfile = () => {
           setPostCount(posts.data.length);
           setRecentPosts(posts.data);
         }
-      } catch (error: any) {
+      } catch (error) {
         console.log("error", error);
       }
     };
@@ -123,10 +127,9 @@ const UserProfile = () => {
           const response = await axios.post("api/image/profile", {
             image: reader.result,
           });
-          setProfile((prevUser:any) => ({
-            ...prevUser,
-            profileImageURL: response.data.secure_url,
-          }));
+          setProfile((prevUser) => 
+            prevUser ? { ...prevUser, profileImageURL: response.data.secure_url } : prevUser
+          );
         } catch (error) {
           console.error("Error uploading image:", error);
         } finally {

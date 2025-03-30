@@ -23,7 +23,7 @@ export const getDataFromToken = (request: NextRequest) => {
 
         console.log("Decoded Token:", decodedToken);
         return decodedToken.id;
-    } catch (error: any) {
-        throw new Error(error.message);
+    } catch (error) {
+        throw new Error(error instanceof Error ? error.message : String(error));
     }
 };

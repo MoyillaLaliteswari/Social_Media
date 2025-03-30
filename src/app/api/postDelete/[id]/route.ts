@@ -19,7 +19,7 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json({message:"Post deleted successfully",postres},{status:201});
 
   }
-  catch(error:any){
+  catch(error){
     return NextResponse.json({error:error},{status:500})
   }
 }

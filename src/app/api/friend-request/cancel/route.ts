@@ -23,7 +23,7 @@ export async function DELETE(request: NextRequest) {
 
         return NextResponse.json({ message: "Friend request canceled successfully." }, { status: 200 });
 
-    } catch (error: any) {
-        return NextResponse.json({ message: "An error occurred.", error: error.message }, { status: 500 });
+    } catch (error) {
+        return NextResponse.json({ message: "An error occurred.", error: error }, { status: 500 });
     }
 }

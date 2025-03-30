@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
     await receiver.save();
 
     return NextResponse.json({ message: "Friend request sent." }, { status: 200 });
-  } catch (error: any) {
+  } catch (error) {
     return NextResponse.json({ message: "An error occurred.", error }, { status: 500 });
   }
 }

@@ -34,6 +34,7 @@ export default function AddPost() {
         return null;
       }
     } catch (error) {
+      console.log(error)
       toast.error("Error uploading media.");
       return null;
     }
@@ -55,6 +56,7 @@ export default function AddPost() {
       router.push(`/post/${response.data.post._id}`);
     } catch (error) {
       toast.error("Error creating post.");
+      console.log(error)
     } finally {
       setLoading(false);
     }

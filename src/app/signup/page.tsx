@@ -26,9 +26,10 @@ export default function SignUpPage() {
       toast.success("Verify email sent! Check your inbox.", { duration: 6000 });
       toast.success("Account created successfully! Please verify to log in.", { duration: 6000 });
       router.push("/login");
-    } catch (error: any) {
+    } catch (error) {
       console.log(error);
-      toast.error(error.response?.data?.message || "Try signing up with a unique username and email");
+      const errorMessage = (error as any)?.response?.data?.message || "Try signing up with a unique username and email";
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }

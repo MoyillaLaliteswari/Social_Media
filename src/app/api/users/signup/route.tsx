@@ -36,8 +36,8 @@ export async function POST(request:NextRequest) {
             {message:"User created Successfully",success:true,savedUser},
             {status:201},
         ) 
-    } catch (error:any) {
-        return NextResponse.json({error:error.message},
+    } catch (error) {
+        return NextResponse.json({error:error},
             {status:500})
     }
 }

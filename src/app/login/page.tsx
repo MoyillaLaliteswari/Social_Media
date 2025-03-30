@@ -7,8 +7,6 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import { motion } from "framer-motion";
 import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
-import { FcGoogle } from "react-icons/fc";
-import { FaTwitter } from "react-icons/fa";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -109,7 +107,7 @@ export default function LoginPage() {
 
         {/* Links */}
         <p className="mt-4 text-sm text-center text-gray-400">
-          Don't have an account?{" "}
+          Don&apos;t have an account?{" "}
           <Link href="/signup">
             <span className="text-white font-semibold cursor-pointer hover:underline">
               Sign Up

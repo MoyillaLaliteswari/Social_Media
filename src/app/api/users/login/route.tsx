@@ -48,9 +48,9 @@ export async function POST(request:NextRequest) {
       });
   
       return response;
-    } catch (error:any) {
+    } catch (error) {
       console.error("Error in Login", error);
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      return NextResponse.json({ error: error }, { status: 500 });
     }
   }
   

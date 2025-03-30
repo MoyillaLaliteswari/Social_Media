@@ -29,6 +29,6 @@ export async function GET(req: Request) {
 
     return NextResponse.json(formattedUsers, { status: 200 });
   } catch (error) {
-    return NextResponse.json({ message: "Server Error" }, { status: 500 });
+    return NextResponse.json({ message: `Server Error :${error}` }, { status: 500 });
   }
 }

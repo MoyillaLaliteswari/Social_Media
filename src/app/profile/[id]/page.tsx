@@ -78,8 +78,8 @@ const UserProfile = () => {
         setFollowersCount(userData.followers.length || 0);
         setFollowingCount(userData.following.length || 0);
         setIsFollowing(userData.followers.includes(myId._id));
-      } catch (error: any) {
-        setError(error.response?.data?.message || "Error fetching user profile.");
+      } catch (error) {
+        setError((error as Error)?.message || "Error fetching user profile.");
       } finally {
         setLoading(false);
       }

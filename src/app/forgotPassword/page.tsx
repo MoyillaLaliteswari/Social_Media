@@ -16,9 +16,9 @@ export default function ForgotPasswordPage() {
       console.log(response);
       setMessage("Email sent to reset password");
       toast.success("Email sent to reset password");
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.log("error", error);
-      const errorMsg = error.response?.data?.error || "An error occurred";
+      const errorMsg = (error as any).response?.data?.error || "An error occurred";
       setErrorMessage(errorMsg);
       toast.error(errorMsg);
     }

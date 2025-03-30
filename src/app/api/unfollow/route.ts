@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
         console.log("Unfollowed successfully:", { userId, myId }); 
 
         return NextResponse.json({ message: "Unfollowed successfully." }, { status: 200 });
-    } catch (error: any) {
+    } catch (error) {
         console.error("Error:", error);
         return NextResponse.json({ message: "An error occurred.", error }, { status: 500 });
     }

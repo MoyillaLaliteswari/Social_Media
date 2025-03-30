@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
      await sendEmail({email,emailType:"RESET",userId:user._id});
      return NextResponse.json({message:"Email sent to reset password"});
  
-    } catch (error:any) {
-         return NextResponse.json({error:error.message},{status:500});
+    } catch (error) {
+         return NextResponse.json({error:error},{status:500});
     }
  }

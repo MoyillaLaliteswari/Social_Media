@@ -63,8 +63,8 @@ export async function POST(request: NextRequest) {
         await newStory.save();
 
         return NextResponse.json({ message: "Story uploaded successfully", mediaURL }, { status: 200 });
-    } catch (error: any) {
+    } catch (error) {
         console.error("Upload Error:", error);
-        return NextResponse.json({ message: "Failed to upload story", error: error.message }, { status: 500 });
+        return NextResponse.json({ message: "Failed to upload story", error: error }, { status: 500 });
     }
 }

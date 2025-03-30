@@ -39,6 +39,6 @@ export async function POST(req:NextRequest) {
 
         return NextResponse.json({ message: "Like toggled successfully", likes: updatedLikes }, { status: 200 });
     } catch (error) {
-        return NextResponse.json({ error: "Error liking/unliking comment" }, { status: 500 });
+        return NextResponse.json({ error: `Error liking/unliking comment: ${error}` }, { status: 500 });
     }
 }

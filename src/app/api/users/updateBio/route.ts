@@ -20,7 +20,7 @@ export async function POST(request:NextRequest){
         currentUser.bio=bio;
         await currentUser.save();
         return  NextResponse.json({message:"Bio updated Successfully!",currentUser});
-    }catch(err:any){
-        return NextResponse.json({message:err.message},{status:500});
+    }catch(err){
+        return NextResponse.json({message:err},{status:500});
     }
 }

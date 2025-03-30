@@ -25,7 +25,7 @@ export async function DELETE(request: NextRequest) {
       await FriendRequest.findByIdAndDelete(requestId);
   
       return NextResponse.json({ message: "Friend request rejected." }, { status: 200 });
-    } catch (error: any) {
+    } catch (error) {
       return NextResponse.json({ message: "An error occurred.", error }, { status: 500 });
     }
   }

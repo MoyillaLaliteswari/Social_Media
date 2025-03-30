@@ -32,7 +32,7 @@ export async function POST(request:NextRequest){
         await currentUser.save();
         
         return NextResponse.json({message:"Followed successfully,"},{status:200});
-    }catch(error:any){
+    }catch(error){
         return NextResponse.json({ message: "An error occurred.", error }, { status: 500 });
     }
 }

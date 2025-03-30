@@ -19,7 +19,7 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json({message:"Comment deleted successfully",commentRes},{status:201});
 
   }
-  catch(error:any){
-    return NextResponse.json({error:error},{status:500})
+  catch(error){
+    return NextResponse.json({error},{status:500})
   }
 }

@@ -23,10 +23,10 @@ export async function GET(request: NextRequest) {
             message: "User found",
             data: user,
         });
-    } catch (error: any) {
-        console.error("Error:", error.message);
+    } catch (error) {
+        console.error("Error:", error);
         return NextResponse.json(
-            { error: error.message },
+            { error: error },
             { status: 400 }
         );
     }

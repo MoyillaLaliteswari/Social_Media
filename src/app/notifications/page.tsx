@@ -21,7 +21,6 @@ const FollowRequests = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [showLeftMenu, setShowLeftMenu] = useState(false);
-  const [showRightMenu, setShowRightMenu] = useState(false);
 
   useEffect(() => {
     const fetchMyId = async () => {
@@ -29,6 +28,7 @@ const FollowRequests = () => {
         const res = await axios.get(`/api/users/me`);
         setMyId(res.data.data._id);
       } catch (error) {
+        console.log(error)
         setError("Error fetching user ID");
       }
     };
@@ -44,6 +44,7 @@ const FollowRequests = () => {
         const res = await axios.get(`/api/friend-request/pending/${myId}`);
         setRequests(res.data.receivedRequests);
       } catch (error) {
+        console.log(error)
         setError("Error fetching follow requests");
       } finally {
         setLoading(false);
@@ -67,8 +68,8 @@ const FollowRequests = () => {
       }
 
       setRequests((prev) => prev.filter((req) => req._id !== requestId));
-    } catch (error: any) {
-      console.error(`Error ${action}ing request:`, error.response?.data || error.message);
+    } catch (error) {
+      console.error(`Error ${action}ing request:`, error || error);
     }
   };
 

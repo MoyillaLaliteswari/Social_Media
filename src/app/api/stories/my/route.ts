@@ -32,8 +32,8 @@ export async function GET(request: NextRequest) {
         }, { status: 200 });
 
 
-    } catch (error: any) {
+    } catch (error) {
         console.error("Error fetching stories:", error);
-        return NextResponse.json({ message: "Failed to fetch stories", error: error.message }, { status: 500 });
+        return NextResponse.json({ message: "Failed to fetch stories", error: error }, { status: 500 });
     }
 }

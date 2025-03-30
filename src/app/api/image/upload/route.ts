@@ -50,8 +50,8 @@ export async function POST(request: NextRequest) {
         const coverImageURL = (uploadResponse as any).secure_url;
 
         return NextResponse.json({ message: "Post uploaded successfully", coverImageURL }, { status: 200 });
-    } catch (error: any) {
+    } catch (error) {
         console.error("Upload Error:", error);
-        return NextResponse.json({ message: "Failed to upload media", error: error.message }, { status: 500 });
+        return NextResponse.json({ message: "Failed to upload media", error: error }, { status: 500 });
     }
 }

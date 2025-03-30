@@ -19,7 +19,7 @@ export async function GET(request:NextRequest,{params}:{params:{userId:string}})
             return NextResponse.json({message:"No posts to display!"})
         }
         return NextResponse.json(posts);
-    }catch(err:any){
+    }catch(err){
         console.log("Error fetchng userPosts:" ,err);
         return NextResponse.json({error:"Failed to fetch user posts"},{status:500});
     }

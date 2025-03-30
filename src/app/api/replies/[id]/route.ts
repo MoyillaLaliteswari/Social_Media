@@ -18,6 +18,6 @@ export async function GET(req: NextRequest) {
 
         return NextResponse.json({ replies }, { status: 200 });
     } catch (error) {
-        return NextResponse.json({ error: "Error fetching replies" }, { status: 500 });
+        return NextResponse.json({ error: `Error fetching replies:${error}`}, { status: 500 });
     }
 }

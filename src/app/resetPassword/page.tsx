@@ -32,9 +32,13 @@ export default function ResetPaswordPage() {
         console.log(response);
         setVerified(true);
         setError(false);
-      } catch (err:any) {
+      } catch (err) {
         setError(true);
-        console.error("Error during resetUser:", err.response?.data || err.message);
+        if (axios.isAxiosError(err)) {
+          console.error("Error during resetUser:", err.response?.data || err.message);
+        } else {
+          console.error("Error during resetUser:", err);
+        }
       } finally {
         setLoading(false);
       }

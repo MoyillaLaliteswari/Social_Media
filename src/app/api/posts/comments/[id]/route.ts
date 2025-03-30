@@ -15,7 +15,7 @@ export async function GET(request:NextRequest) {
         if(!comments || comments.length===0){
            return NextResponse.json({error:"No comments found",status:404}); 
         }
-    }catch(error:any){
-        return NextResponse.json({error:error.message,status:500});
+    }catch(error){
+        return NextResponse.json({error:error,status:500});
     }
 }
