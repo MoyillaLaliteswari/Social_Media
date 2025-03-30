@@ -3,42 +3,66 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 interface CommentSectionProps {
   postId: string;
   user: {
     _id: string;
-    [key: string]: any;
+    [key: string]: unknown;
   };
 }
 
+interface ReplyTextState {
+  [key: string]: string;
+}
+
+interface User {
+  _id: string;
+  username: string;
+  profilePhoto?: string;
+}
+
+interface Comment {
+  _id: string;
+  comment: string;
+  createdBy: User;
+  likes: number;
+  replies: Comment[];
+}
+
+interface LikeCommentResponse {
+  success: boolean;
+  message: string;
+}
+
 export default function CommentSection({ postId, user }: CommentSectionProps) {
-  const [comments, setComments] = useState<any[]>([]);
+  const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState('');
   const [replyText, setReplyText] = useState<ReplyTextState>({});
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
+    const fetchComments = async () => {
+      try {
+        const response = await axios.get<{ comments: Comment[] }>(`/api/posts/${postId}/comments`);
+        setComments(response.data.comments);
+      } catch (error) {
+        console.error('Error fetching comments:', error);
+      }
+    };
+
     fetchComments();
-  }, []);
+  }, [postId]);
 
-  const fetchComments = async () => {
-    try {
-      const response = await axios.get(`/api/posts/${postId}/comments`);
-      setComments(response.data.comments);
-    } catch (error) {
-      console.error('Error fetching comments:', error);
-    }
-  };
-
-  const handleCommentSubmit = async (e:any) => {
+  const handleCommentSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!newComment.trim()) return;
-    
+
     setLoading(true);
     try {
-      const response = await axios.post(`/api/posts/comments`, {
+      const response = await axios.post<{ newComment: Comment }>('/api/posts/comments', {
         comment: newComment,
         post: { _id: postId },
         user: { _id: user._id },
@@ -51,58 +75,41 @@ export default function CommentSection({ postId, user }: CommentSectionProps) {
     setLoading(false);
   };
 
-interface ReplyTextState {
-    [key: string]: string;
-}
-
-interface Comment {
-    _id: string;
-    comment: string;
-    createdBy: {
-        _id: string;
-        username: string;
-        profilePhoto?: string;
-    };
-    likes: number;
-    replies: Comment[];
-}
-
-const handleReplySubmit = async (e: React.FormEvent<HTMLFormElement>, parentId: string) => {
+  const handleReplySubmit = async (e: React.FormEvent<HTMLFormElement>, parentId: string) => {
     e.preventDefault();
     if (!replyText[parentId]?.trim()) return;
     try {
-        const response = await axios.post(`/api/posts/comments/reply`, {
-            comment: replyText[parentId],
-            post: { _id: postId },
-            user: { _id: user._id },
-            parentId
-        });
-        setComments((prevComments) => prevComments.map(comment =>
-            comment._id === parentId ? { ...comment, replies: [...comment.replies, response.data.newComment] } : comment
-        ));
-        setReplyText((prev) => ({ ...prev, [parentId]: '' }));
+      const response = await axios.post<{ newComment: Comment }>('/api/posts/comments/reply', {
+        comment: replyText[parentId],
+        post: { _id: postId },
+        user: { _id: user._id },
+        parentId,
+      });
+      setComments((prevComments) =>
+        prevComments.map((comment) =>
+          comment._id === parentId
+            ? { ...comment, replies: [...comment.replies, response.data.newComment] }
+            : comment
+        )
+      );
+      setReplyText((prev) => ({ ...prev, [parentId]: '' }));
     } catch (error) {
-        console.error('Error posting reply:', error);
+      console.error('Error posting reply:', error);
     }
-};
+  };
 
-interface LikeCommentResponse {
-    success: boolean;
-    message: string;
-}
-
-const handleLikeComment = async (commentId: string) => {
+  const handleLikeComment = async (commentId: string) => {
     try {
-        await axios.post<LikeCommentResponse>(`/api/comments/like`, { commentId, userId: user._id });
-        setComments((prevComments) =>
-            prevComments.map((comment) =>
-                comment._id === commentId ? { ...comment, likes: comment.likes + 1 } : comment
-            )
-        );
+      await axios.post<LikeCommentResponse>('/api/comments/like', { commentId, userId: user._id });
+      setComments((prevComments) =>
+        prevComments.map((comment) =>
+          comment._id === commentId ? { ...comment, likes: comment.likes + 1 } : comment
+        )
+      );
     } catch (error) {
-        console.error('Error liking comment:', error);
+      console.error('Error liking comment:', error);
     }
-};
+  };
 
   return (
     <div className="p-4 border-t border-gray-200">
@@ -111,21 +118,23 @@ const handleLikeComment = async (commentId: string) => {
         {comments.map((comment) => (
           <div key={comment._id} className="mb-3">
             <div className="flex items-start gap-3">
-              <img
+              <Image
                 src={comment.createdBy.profilePhoto || '/default-avatar.png'}
                 alt="Profile"
+                width={40}
+                height={40}
                 className="w-10 h-10 rounded-full object-cover cursor-pointer"
                 onClick={() => router.push(`/profile/${comment.createdBy._id}`)}
               />
               <div>
-                <p className="text-sm font-semibold cursor-pointer" onClick={() => router.push(`/profile/${comment.createdBy._id}`)}>
+                <p
+                  className="text-sm font-semibold cursor-pointer"
+                  onClick={() => router.push(`/profile/${comment.createdBy._id}`)}
+                >
                   {comment.createdBy.username}
                 </p>
                 <p className="text-sm text-gray-600">{comment.comment}</p>
-                <button
-                  onClick={() => handleLikeComment(comment._id)}
-                  className="text-blue-500 text-sm"
-                >
+                <button onClick={() => handleLikeComment(comment._id)} className="text-blue-500 text-sm">
                   ❤️ {comment.likes || 0}
                 </button>
                 <button
@@ -139,7 +148,9 @@ const handleLikeComment = async (commentId: string) => {
                     <input
                       type="text"
                       value={replyText[comment._id]}
-                      onChange={(e) => setReplyText((prev) => ({ ...prev, [comment._id]: e.target.value }))}
+                      onChange={(e) =>
+                        setReplyText((prev) => ({ ...prev, [comment._id]: e.target.value }))
+                      }
                       placeholder="Write a reply..."
                       className="flex-1 p-2 border rounded-lg"
                     />
@@ -152,16 +163,21 @@ const handleLikeComment = async (commentId: string) => {
             </div>
             {comment.replies && comment.replies.length > 0 && (
               <div className="ml-12 mt-2">
-                {comment.replies.map((reply:any) => (
+                {comment.replies.map((reply) => (
                   <div key={reply._id} className="flex items-start gap-3 mb-2">
-                    <img
+                    <Image
                       src={reply.createdBy.profilePhoto || '/default-avatar.png'}
                       alt="Profile"
+                      width={32}
+                      height={32}
                       className="w-8 h-8 rounded-full object-cover cursor-pointer"
                       onClick={() => router.push(`/profile/${reply.createdBy._id}`)}
                     />
                     <div>
-                      <p className="text-sm font-semibold cursor-pointer" onClick={() => router.push(`/profile/${reply.createdBy._id}`)}>
+                      <p
+                        className="text-sm font-semibold cursor-pointer"
+                        onClick={() => router.push(`/profile/${reply.createdBy._id}`)}
+                      >
                         {reply.createdBy.username}
                       </p>
                       <p className="text-sm text-gray-600">{reply.comment}</p>
@@ -181,11 +197,7 @@ const handleLikeComment = async (commentId: string) => {
           placeholder="Add a comment..."
           className="flex-1 p-2 border rounded-lg"
         />
-        <button
-          type="submit"
-          className="bg-blue-500 text-white px-4 py-2 rounded-lg disabled:opacity-50"
-          disabled={loading}
-        >
+        <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded-lg disabled:opacity-50" disabled={loading}>
           {loading ? 'Posting...' : 'Post'}
         </button>
       </form>

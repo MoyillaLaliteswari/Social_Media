@@ -1,9 +1,8 @@
 import { connect } from "@/src/dbConfig/dbConfig";
 import { NextRequest, NextResponse } from "next/server";
 import Story from "@/src/models/storyModel";
-import User from "@/src/models/userModel";
 import { getDataFromToken } from "@/src/helpers/getDataFromToken";
-import cloudinary from "cloudinary";
+import cloudinary, { UploadApiResponse } from "cloudinary";
 
 // Cloudinary Configuration
 cloudinary.v2.config({
@@ -34,7 +33,7 @@ export async function POST(request: NextRequest) {
         const buffer = Buffer.from(arrayBuffer);
 
         // Upload to Cloudinary
-        const uploadResponse = await new Promise((resolve, reject) => {
+        const uploadResponse = await new Promise<UploadApiResponse>((resolve, reject) => {
             const stream = cloudinary.v2.uploader.upload_stream(
                 { 
                     resource_type: mediaType === "video" ? "video" : "image",
@@ -43,13 +42,13 @@ export async function POST(request: NextRequest) {
                 },
                 (error, result) => {
                     if (error) reject(error);
-                    else resolve(result);
+                    else resolve(result as UploadApiResponse);
                 }
             );
             stream.end(buffer);
         });
 
-        const mediaURL = (uploadResponse as any).secure_url;
+        const mediaURL = uploadResponse.secure_url;
 
         // Save story to MongoDB
         const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);

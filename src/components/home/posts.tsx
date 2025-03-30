@@ -24,7 +24,14 @@ export default function Posts({ post }: PostProps) {
   const [hasLiked, setHasLiked] = useState(false);
   const [commentText, setCommentText] = useState("");
   const [user, setUser] = useState<string | null>(null);
-  const [postComments, setPostComments] = useState<any[]>([]);
+  const [postComments, setPostComments] = useState<{ 
+    _id: string; 
+    comment: string; 
+    createdBy: { _id: string; username: string; profileImageURL: string }; 
+    likes: number; 
+    createdAt: string; 
+    replies?: { _id: string; comment: string; createdBy?: { _id: string; username: string; profileImageURL: string }; createdAt: string }[] 
+  }[]>([]);  
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLiking] = useState(false);
   const [isCommenting] = useState(false);
@@ -93,7 +100,8 @@ export default function Posts({ post }: PostProps) {
 
   const fetchReplies = async (commentId: string) => {
     try {
-      const { data } = await axios.get(`/api/replies/${commentId}`);
+      const { data }: { data: { replies: { _id: string; comment: string; createdBy?: { _id: string; username: string; profileImageURL: string }; createdAt: string }[] } } = await axios.get(`/api/replies/${commentId}`);
+      
       setPostComments((prev) =>
         prev.map((c) =>
           c._id === commentId ? { ...c, replies: data.replies } : c
@@ -103,6 +111,7 @@ export default function Posts({ post }: PostProps) {
       console.error("Error fetching replies:", error);
     }
   };
+  
 
   const toggleLike = async () => {
     if (!user) return;
