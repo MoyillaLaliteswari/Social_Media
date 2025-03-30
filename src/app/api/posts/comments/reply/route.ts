@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
         await Comment.findByIdAndUpdate(parentId, { $push: { replies: newReply._id } });
 
         return NextResponse.json({ message: "Reply added successfully", newReply }, { status: 200 });
-    } catch (error: any) {
-        return NextResponse.json({ error: error.message }, { status: 500 });
+    } catch (error) {
+        return NextResponse.json({ error: error }, { status: 500 });
     }
 }

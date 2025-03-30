@@ -28,7 +28,9 @@ export default function SignUpPage() {
       router.push("/login");
     } catch (error) {
       console.log(error);
-      const errorMessage = (error as any)?.response?.data?.message || "Try signing up with a unique username and email";
+      const errorMessage = axios.isAxiosError(error) && error.response?.data?.message 
+        ? error.response.data.message 
+        : "Try signing up with a unique username and email";
       toast.error(errorMessage);
     } finally {
       setLoading(false);

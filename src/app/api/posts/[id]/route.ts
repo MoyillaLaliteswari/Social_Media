@@ -1,10 +1,9 @@
 import {NextResponse,NextRequest} from 'next/server';
-import User from '@/src/models/userModel';
 import {connect} from '@/src/dbConfig/dbConfig';
 import Post from '@/src/models/postModel';
 connect();
 
-export async function GET(request:NextResponse){
+export async function GET(request:NextRequest){
     try{
         const url=await new URL(request.url);
         const postId=url.pathname.split('/').pop();

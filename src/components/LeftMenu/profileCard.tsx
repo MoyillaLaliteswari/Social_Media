@@ -8,7 +8,7 @@ import { motion } from 'framer-motion';
 import { Loader2 } from 'lucide-react';
 
 const ProfileCard = () => {
-  const [user, setUser] = useState<{ profileImageURL?: string; name?: string; username?: string; followers?: any[] } | null>(null);
+  const [user, setUser] = useState<{ profileImageURL?: string; name?: string; username?: string; followers?: [] } | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

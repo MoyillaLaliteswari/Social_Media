@@ -21,8 +21,12 @@ export default function LoginPage() {
       await axios.post("/api/users/login", user);
       toast.success("Login successful");
       router.push("/profile");
-    } catch (error: any) {
-      toast.error(error.response?.data?.error || "An error occurred");
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        toast.error(error.response?.data?.error || "An error occurred");
+      } else {
+        toast.error("An unexpected error occurred");
+      }
     } finally {
       setLoading(false);
     }

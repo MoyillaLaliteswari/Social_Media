@@ -6,7 +6,6 @@ import toast from "react-hot-toast";
 import { FaBars, FaCloudUploadAlt } from "react-icons/fa";
 import { IoClose } from "react-icons/io5";
 import LeftMenu from "@/src/components/LeftMenu/leftMenu";
-import { Anybody } from "next/font/google";
 
 export default function AddPost() {
   const router = useRouter();
@@ -33,7 +32,7 @@ export default function AddPost() {
       });
 
       return response.data.coverImageURL || null;
-    } catch (error:any) {
+    } catch (error) {
       console.log(error)
       toast.error("Error uploading media.");
       return null;
@@ -53,7 +52,7 @@ export default function AddPost() {
       const response = await axios.post("/api/posts/addPost", updatedPost);
       toast.success("Post created successfully!");
       router.push(`/post/${response.data.post._id}`);
-    } catch (error:any) {
+    } catch (error) {
       toast.error("Error creating post.");
       console.log(error)
     } finally {

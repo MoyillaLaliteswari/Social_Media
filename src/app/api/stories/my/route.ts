@@ -1,7 +1,6 @@
 import { connect } from "@/src/dbConfig/dbConfig";
 import { NextRequest, NextResponse } from "next/server";
 import Story from "@/src/models/storyModel";
-import User from "@/src/models/userModel";
 import { getDataFromToken } from "@/src/helpers/getDataFromToken";
 connect();
 
@@ -22,7 +21,7 @@ export async function GET(request: NextRequest) {
         console.log(stories);
 
         return NextResponse.json({ 
-            stories: stories.map((story: any) => ({
+            stories: stories.map((story: typeof Story.prototype) => ({
                 _id: story._id,
                 user: story.author.username,
                 img: story.author.profileImageURL,

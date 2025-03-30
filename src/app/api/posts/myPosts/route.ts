@@ -4,7 +4,7 @@ import { getDataFromToken } from "@/src/helpers/getDataFromToken";
 import Post from "@/src/models/postModel";
 connect();
 
-export async function GET(request:NextRequest,userId:string){
+export async function GET(request:NextRequest){
     try{
         const req=await request.json();
         const userId=await getDataFromToken(req.token);

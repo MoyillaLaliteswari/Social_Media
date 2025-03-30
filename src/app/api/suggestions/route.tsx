@@ -1,10 +1,10 @@
-import { NextResponse, NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 import User from "@/src/models/userModel";
 import { connect } from "@/src/dbConfig/dbConfig";
 
 connect();
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const users = await User.aggregate([
       { $sample: { size: 3 } }, // Select 3 random users

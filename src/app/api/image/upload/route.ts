@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
             stream.end(buffer);
         });
 
-        const coverImageURL = (uploadResponse as any).secure_url;
+        const coverImageURL = (uploadResponse as { secure_url: string }).secure_url;
 
         return NextResponse.json({ message: "Post uploaded successfully", coverImageURL }, { status: 200 });
     } catch (error) {

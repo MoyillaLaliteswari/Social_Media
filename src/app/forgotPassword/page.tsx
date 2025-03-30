@@ -18,7 +18,9 @@ export default function ForgotPasswordPage() {
       toast.success("Email sent to reset password");
     } catch (error: unknown) {
       console.log("error", error);
-      const errorMsg = (error as any).response?.data?.error || "An error occurred";
+      const errorMsg = axios.isAxiosError(error) && error.response?.data?.error 
+        ? error.response.data.error 
+        : "An error occurred";
       setErrorMessage(errorMsg);
       toast.error(errorMsg);
     }

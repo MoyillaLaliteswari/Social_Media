@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
             return NextResponse.json({ message: "User not found" }, { status: 404 });
         }
 
-        const followingIds = user.following.map((f: any) => f._id);
+        const followingIds = user.following.map((f: { _id: string }) => f._id);
         
         const stories = await Story.find({
             author: { $in: followingIds },
@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
         .sort({ createdAt: -1 });
 
         return NextResponse.json({ 
-            stories: stories.map((story: any) => ({
+            stories: stories.map((story: { _id: string; author: { username: string; profileImageURL: string }; media: string; mediaType: string }) => ({
                 _id: story._id,
                 user: story.author.username,
                 img: story.author.profileImageURL,
