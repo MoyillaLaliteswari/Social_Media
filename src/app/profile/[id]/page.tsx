@@ -184,54 +184,53 @@ const UserProfile = () => {
       <div className="hidden md:block md:w-64 fixed top-0 left-0 h-screen bg-gray-900 z-50">
         <LeftMenu showLeftMenu={true} setShowLeftMenu={setShowLeftMenu} />
       </div>
-
-      {/* Mobile Left Menu */}
+  
+      {/* Mobile Sidebar */}
       <div
         className={`fixed top-0 left-0 w-64 h-full bg-gray-900 z-50 transform transition-transform ${
           showLeftMenu ? "translate-x-0" : "-translate-x-full"
         } md:hidden`}
       >
-        <button className="absolute top-4 right-4" onClick={() => setShowLeftMenu(false)}>
+        <button className="absolute top-4 right-4 text-white" onClick={() => setShowLeftMenu(false)}>
           <FaTimes size={24} />
         </button>
         <LeftMenu showLeftMenu={showLeftMenu} setShowLeftMenu={setShowLeftMenu} />
       </div>
-
+  
       {/* Mobile Backdrop */}
       {showLeftMenu && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"
-          onClick={() => setShowLeftMenu(false)}
-        />
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden" onClick={() => setShowLeftMenu(false)} />
       )}
-
+  
       {/* Main Content */}
-      <div className="flex-1 flex flex-col items-center p-10 md:ml-64">
-        {/* Mobile Menu Toggle Button */}
+      <div className="flex-1 flex flex-col items-center p-4 sm:p-6 md:p-10 md:ml-64">
+        {/* Mobile Menu Button */}
         <button
           className="md:hidden fixed top-4 left-4 bg-gray-800 p-2 rounded-full shadow-lg z-50"
           onClick={() => setShowLeftMenu(true)}
         >
           <FaBars size={24} />
         </button>
-
+  
         {/* Profile Info */}
         {loading ? (
           <p className="text-lg font-semibold animate-pulse">Loading User Profile...</p>
         ) : profile ? (
-          <div className="max-w-3xl w-full bg-gray-800 bg-opacity-95 shadow-2xl rounded-3xl p-8 flex flex-col items-center backdrop-blur-md border border-gray-700">
+          <div className="max-w-3xl w-full bg-gray-800 bg-opacity-95 shadow-xl rounded-3xl p-6 sm:p-8 flex flex-col items-center backdrop-blur-md border border-gray-700">
+            {/* Profile Image */}
             <img
               src={profile.profileImageURL}
               alt="Profile"
-              className="w-32 h-32 rounded-full object-cover border-4 border-blue-500 shadow-xl"
+              className="w-24 h-24 sm:w-32 sm:h-32 rounded-full object-cover border-4 border-blue-500 shadow-xl"
             />
-            <h1 className="text-3xl font-bold mt-4 text-white">{profile.username}</h1>
-            <h2 className="text-gray-400">{profile.email}</h2>
-            <p className="text-center mt-2 text-gray-300">{profile.bio || "No bio available"}</p>
-
+  
+            <h1 className="text-2xl sm:text-3xl font-bold mt-3 text-white">{profile.username}</h1>
+            <h2 className="text-gray-400 text-sm sm:text-base">{profile.email}</h2>
+            <p className="text-center mt-2 text-gray-300 text-sm sm:text-base">{profile.bio || "No bio available"}</p>
+  
             {myId?._id !== profile._id && (
               <button
-                className={`mt-4 px-6 py-2 rounded-lg font-semibold transition duration-300 ${
+                className={`mt-4 px-4 sm:px-6 py-2 rounded-lg font-semibold transition duration-300 text-sm sm:text-base ${
                   isFollowing
                     ? "bg-red-500 hover:bg-red-600"
                     : isRequested
@@ -244,49 +243,49 @@ const UserProfile = () => {
                 {isLoadingFollow ? "Processing..." : isFollowing ? "Unfollow" : isRequested ? "Requested" : "Follow"}
               </button>
             )}
-
+  
             {/* Stats Section */}
-            <div className="flex justify-around w-full mt-6">
+            <div className="flex flex-wrap justify-center gap-4 mt-6 w-full">
               <div
-                className="text-center cursor-pointer p-4 bg-purple-700 rounded-lg shadow-md hover:bg-purple-600 transition duration-300"
+                className="text-center cursor-pointer p-4 bg-purple-700 rounded-lg shadow-md hover:bg-purple-600 transition w-24 sm:w-32"
                 onClick={() => setFollowersOpen(true)}
               >
-                <p className="text-2xl font-bold text-white">{followersCount}</p>
-                <p className="text-gray-300">Followers</p>
+                <p className="text-xl sm:text-2xl font-bold">{followersCount}</p>
+                <p className="text-gray-300 text-sm">Followers</p>
               </div>
               <div
-                className="text-center cursor-pointer p-4 bg-purple-700 rounded-lg shadow-md hover:bg-purple-600 transition duration-300"
+                className="text-center cursor-pointer p-4 bg-purple-700 rounded-lg shadow-md hover:bg-purple-600 transition w-24 sm:w-32"
                 onClick={() => setFollowingOpen(true)}
               >
-                <p className="text-2xl font-bold text-white">{followingCount}</p>
-                <p className="text-gray-300">Following</p>
+                <p className="text-xl sm:text-2xl font-bold">{followingCount}</p>
+                <p className="text-gray-300 text-sm">Following</p>
               </div>
-              <div className="text-center p-4 bg-purple-700 rounded-lg shadow-md">
-                <p className="text-2xl font-bold text-white">{postCount}</p>
-                <p className="text-gray-300">Posts</p>
+              <div className="text-center p-4 bg-purple-700 rounded-lg shadow-md w-24 sm:w-32">
+                <p className="text-xl sm:text-2xl font-bold">{postCount}</p>
+                <p className="text-gray-300 text-sm">Posts</p>
               </div>
             </div>
-
+  
             {followersOpen && (
               <FollowModal title="Followers" list={followerList} onClose={() => setFollowersOpen(false)} />
             )}
             {followingOpen && (
               <FollowModal title="Following" list={followingList} onClose={() => setFollowingOpen(false)} />
             )}
-
+  
             {/* View All Posts */}
             <Link href={`/userPosts/${userId}`} className="mt-6 text-purple-400 hover:underline text-lg font-medium">
               View all posts
             </Link>
-
+  
             {/* Recent Posts */}
             <div className="mt-6 w-full">
-              <h2 className="text-2xl font-semibold mb-4 text-white">Recent Posts</h2>
+              <h2 className="text-xl sm:text-2xl font-semibold mb-4 text-white">Recent Posts</h2>
               {recentPosts.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {recentPosts.slice(0, 4).map((post) => (
                     <Link key={post._id} href={`/post/${post._id}`}>
-                      <div className="bg-gray-700 p-4 rounded-xl shadow-lg hover:shadow-2xl transition duration-300 cursor-pointer">
+                      <div className="bg-gray-700 p-3 sm:p-4 rounded-xl shadow-md hover:shadow-lg transition duration-300 cursor-pointer">
                         <img
                           src={
                             post.images.length > 0
@@ -296,7 +295,7 @@ const UserProfile = () => {
                               : "/default.png"
                           }
                           alt="Post"
-                          className="w-full h-40 object-cover rounded-md transform hover:scale-105 transition duration-300"
+                          className="w-full h-32 sm:h-40 object-cover rounded-md transform hover:scale-105 transition duration-300"
                         />
                         <h1 className="text-lg font-semibold mt-2 text-white">{post.title}</h1>
                         <p className="text-gray-400 text-sm">{post.caption}</p>
@@ -305,7 +304,7 @@ const UserProfile = () => {
                   ))}
                 </div>
               ) : (
-                <p className="text-gray-400">No posts available</p>
+                <p className="text-gray-400 text-center">No posts available</p>
               )}
             </div>
           </div>
@@ -315,6 +314,7 @@ const UserProfile = () => {
       </div>
     </div>
   );
+  
 };
 
 export default UserProfile;
