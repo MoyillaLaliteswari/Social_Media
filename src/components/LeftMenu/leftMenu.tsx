@@ -36,7 +36,7 @@ export default function LeftMenu({ showLeftMenu, setShowLeftMenu }: LeftMenuProp
       initial={{ x: -200, opacity: 0 }}
       animate={{ x: 0, opacity: 1 }}
       transition={{ duration: 0.5 }}
-      className={`fixed top-0 left-0 w-64 h-screen p-6 border-r border-gray-700 bg-gray-900 bg-opacity-40 backdrop-blur-lg z-50 transform transition-transform ${
+      className={`fixed top-0 left-0 w-64 h-screen p-6 border-r border-gray-700 bg-gray-900 bg-opacity-40 backdrop-blur-lg z-50 ${
         showLeftMenu ? 'translate-x-0' : '-translate-x-full'
       } md:translate-x-0`}
     >

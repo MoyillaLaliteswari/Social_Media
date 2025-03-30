@@ -23,7 +23,7 @@ export default function RightMenu({ suggested, showRightMenu, setShowRightMenu }
       initial={{ x: 200, opacity: 0 }}
       animate={{ x: 0, opacity: 1 }}
       transition={{ duration: 0.5 }}
-      className={`fixed top-0 right-0 w-72 h-screen p-6 bg-gray-900 bg-opacity-90 backdrop-blur-lg shadow-2xl overflow-y-auto z-50 transform transition-transform ${
+      className={`fixed top-0 right-0 w-72 h-screen p-6 bg-gray-900 bg-opacity-90 backdrop-blur-lg shadow-2xl z-50 ${
         showRightMenu ? 'translate-x-0' : 'translate-x-full'
       } md:translate-x-0`}
     >

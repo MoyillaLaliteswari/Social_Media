@@ -3,10 +3,9 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import toast from "react-hot-toast";
-import { FaBars, FaCloudUploadAlt, FaTimes } from "react-icons/fa";
+import { FaBars, FaCloudUploadAlt } from "react-icons/fa";
 import { IoClose } from "react-icons/io5";
 import LeftMenu from "@/src/components/LeftMenu/leftMenu";
-import RightMenu from "@/src/components/RightMenu/rightMenu";
 
 export default function AddPost() {
   const router = useRouter();
@@ -16,7 +15,6 @@ export default function AddPost() {
   const [mediaType, setMediaType] = useState<"image" | "video" | null>(null);
   const [loading, setLoading] = useState(false);
   const [showLeftMenu, setShowLeftMenu] = useState(false);
-  const [showRightMenu, setShowRightMenu] = useState(false);
 
   const handleMediaUpload = async (): Promise<string | null> => {
     if (!media) {
@@ -25,7 +23,7 @@ export default function AddPost() {
     }
 
     const formData = new FormData();
-    formData.append("file", media); // FIXED: Corrected key to "file"
+    formData.append("file", media);
     formData.append("mediaType", mediaType || "image");
 
     try {
@@ -33,12 +31,7 @@ export default function AddPost() {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
-      if (response.data.coverImageURL) {
-        return response.data.coverImageURL;
-      } else {
-        toast.error("Failed to upload media.");
-        return null;
-      }
+      return response.data.coverImageURL || null;
     } catch (error) {
       toast.error("Error uploading media.");
       return null;
@@ -79,94 +72,93 @@ export default function AddPost() {
   };
 
   return (
-    <div>
-       <button
-        className="md:hidden fixed top-4 left-4 bg-gray-800 p-2 rounded-full shadow-lg z-50"
-        onClick={() => setShowLeftMenu(true)}
+    <div className="flex min-h-screen bg-black text-white">
+      {/* Left Sidebar */}
+      <div
+        className={`fixed top-0 left-0 w-64 h-screen bg-gray-900 z-50 transition-transform transform ${
+          showLeftMenu ? "translate-x-0" : "-translate-x-full"
+        } md:translate-x-0`}
       >
-        <FaBars size={24} />
-      </button>
+        <LeftMenu showLeftMenu={showLeftMenu} setShowLeftMenu={setShowLeftMenu} />
+      </div>
 
-      {/* Left Sidebar with Backdrop */}
+      {/* Backdrop for mobile */}
       {showLeftMenu && (
         <div
           className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"
           onClick={() => setShowLeftMenu(false)}
         />
       )}
-      <div
-        className={`fixed top-0 left-0 w-64 h-full bg-gray-900 z-50 transform transition-transform ${
-          showLeftMenu ? 'translate-x-0' : '-translate-x-full'
-        } md:translate-x-0 md:static md:block`}
-      >
-        <button className="md:hidden absolute top-4 right-4" onClick={() => setShowLeftMenu(false)}>
-          <FaTimes size={24} />
+
+      {/* Main Content */}
+      <div className="flex-1 flex justify-center items-center bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 px-4 md:pl-64">
+        <button
+          className="md:hidden fixed top-4 left-4 bg-gray-800 p-2 rounded-full shadow-lg z-50"
+          onClick={() => setShowLeftMenu((prev) => !prev)}
+        >
+          <FaBars size={24} />
         </button>
-        <LeftMenu showLeftMenu={showLeftMenu} setShowLeftMenu={setShowLeftMenu} />
-      </div>
-    <div className="min-h-screen flex justify-center items-center bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 px-4">
-      <div className="max-w-md w-full bg-white rounded-2xl shadow-2xl p-6 space-y-6">
-        <h2 className="text-2xl font-bold text-center text-gray-900">Create a New Post ✨</h2>
-        <form onSubmit={(e) => { e.preventDefault(); onAddPost(); }} className="space-y-6">
-          <input
-            type="text"
-            placeholder="Enter title..."
-            value={post.title}
-            onChange={(e) => setPost({ ...post, title: e.target.value })}
-            className="w-full p-3 rounded-lg border-2 border-gray-300 focus:ring-2 focus:ring-blue-500 transition text-gray-800"
-            required
-          />
-
-          <div className="relative border-2 border-dashed border-gray-400 rounded-lg p-6 text-center cursor-pointer bg-gray-100">
+        <div className="max-w-md w-full bg-white rounded-2xl shadow-2xl p-6 space-y-6 text-black">
+          <h2 className="text-2xl font-bold text-center text-gray-900">Create a New Post ✨</h2>
+          <form onSubmit={(e) => { e.preventDefault(); onAddPost(); }} className="space-y-6">
             <input
-              type="file"
-              accept="image/*,video/*"
-              onChange={handleMediaChange}
-              className="absolute inset-0 opacity-0 w-full h-full cursor-pointer"
+              type="text"
+              placeholder="Enter title..."
+              value={post.title}
+              onChange={(e) => setPost({ ...post, title: e.target.value })}
+              className="w-full p-3 rounded-lg border-2 border-gray-300 focus:ring-2 focus:ring-blue-500 transition text-gray-800"
+              required
             />
-            <FaCloudUploadAlt className="text-gray-500 text-4xl mx-auto mb-2" />
-            <p className="text-gray-700">Click or Drag & Drop to Upload</p>
-          </div>
 
-          {mediaPreview && (
-            <div className="relative">
-              <button
-                className="absolute top-2 right-2 bg-black bg-opacity-50 text-white p-1 rounded-full"
-                onClick={() => {
-                  setMediaPreview(null);
-                  setMedia(null);
-                  setMediaType(null);
-                }}
-              >
-                <IoClose />
-              </button>
-              {mediaType === "image" ? (
-                <img src={mediaPreview} alt="Preview" className="w-full h-48 object-cover rounded-lg" />
-              ) : (
-                <video src={mediaPreview} controls className="w-full h-48 rounded-lg" />
-              )}
+            <div className="relative border-2 border-dashed border-gray-400 rounded-lg p-6 text-center cursor-pointer bg-gray-100">
+              <input
+                type="file"
+                accept="image/*,video/*"
+                onChange={handleMediaChange}
+                className="absolute inset-0 opacity-0 w-full h-full cursor-pointer"
+              />
+              <FaCloudUploadAlt className="text-gray-500 text-4xl mx-auto mb-2" />
+              <p className="text-gray-700">Click or Drag & Drop to Upload</p>
             </div>
-          )}
 
-          <textarea
-            onChange={(e) => setPost({ ...post, body: e.target.value })}
-            rows={3}
-            className="w-full p-3 rounded-lg border-2 border-gray-300 focus:ring-2 focus:ring-blue-500 transition text-gray-800"
-            placeholder="Write a caption..."
-            required
-          ></textarea>
+            {mediaPreview && (
+              <div className="relative">
+                <button
+                  className="absolute top-2 right-2 bg-black bg-opacity-50 text-white p-1 rounded-full"
+                  onClick={() => {
+                    setMediaPreview(null);
+                    setMedia(null);
+                    setMediaType(null);
+                  }}
+                >
+                  <IoClose />
+                </button>
+                {mediaType === 'image' ? (
+                  <img src={mediaPreview} alt="Preview" className="w-full h-48 object-cover rounded-lg" />
+                ) : (
+                  <video src={mediaPreview} controls className="w-full h-48 rounded-lg" />
+                )}
+              </div>
+            )}
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition duration-200"
-          >
-            {loading ? "Uploading..." : "Post 🚀"}
-          </button>
-        </form>
+            <textarea
+              onChange={(e) => setPost({ ...post, body: e.target.value })}
+              rows={3}
+              className="w-full p-3 rounded-lg border-2 border-gray-300 focus:ring-2 focus:ring-blue-500 transition text-gray-800"
+              placeholder="Write a caption..."
+              required
+            ></textarea>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition duration-200"
+            >
+              {loading ? 'Uploading...' : 'Post 🚀'}
+            </button>
+          </form>
+        </div>
       </div>
-    </div>
-    
     </div>
   );
 }
