@@ -45,7 +45,7 @@ export default function LeftMenu({ showLeftMenu, setShowLeftMenu }: LeftMenuProp
         <FaTimes size={24} />
       </button>
 
-      <h1 className="text-4xl font-extrabold tracking-wide text-blue-400 mb-6">Lalli</h1>
+      <h1 className="text-4xl font-extrabold tracking-wide text-blue-400 mb-6">VibeNest</h1>
 
       <ul className="space-y-4">
         {menuItems.map(({ href, label, icon }) => (
