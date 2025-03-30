@@ -213,7 +213,7 @@ const UserProfile = () => {
                   className="hidden"
                   onChange={handleImageUpload}
                 />
-                📸
+                {uploading ? "⏳" : "📸"}
               </label>
             </div>
   
@@ -304,8 +304,7 @@ const UserProfile = () => {
         )}
       </div>
     </div>
-  );
-  
+  );  
 };
 
 export default UserProfile;
